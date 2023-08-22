@@ -25,4 +25,10 @@ I will be solving the following problem statement
 - ports and adapter/ hex/ onion you can call it what you want. I just made the code maintainable
 - why paesto instead of jwt. more secure and shit
 - Dont need for uneccessary folders. In my opinion increases complexity, I like to keep it simple
-- 
+
+
+
+## Resources
+- To learn about [sql-injection](https://go.dev/doc/database/sql-injection)
+- For [database schema](https://dbdiagram.io/home)
+-  

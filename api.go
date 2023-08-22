@@ -1,3 +1,9 @@
+// TODO
+/*
+- make different endpoints for different things
+- make tests for http endpoints
+*/
+
 package main
 
 import (
@@ -61,6 +67,7 @@ func (s *APIServer) handleRoot(ctx context.Context, w http.ResponseWriter, r *ht
 	resp := types.Response{
 		Title: "this is a test",
 	}
+
 	s.svc.Search(ctx,"hello")
 	return writeJSON(w, http.StatusOK, resp)
 }

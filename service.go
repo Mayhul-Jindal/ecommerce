@@ -1,3 +1,9 @@
+// TODO
+/*
+- database integration
+- make these endpoints work with test
+*/
+
 package main
 
 import (
