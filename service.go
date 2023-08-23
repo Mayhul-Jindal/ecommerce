@@ -9,7 +9,7 @@ package main
 import (
 	"context"
 
-	"github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal.git/types"
+	"github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/types"
 )
 
 type BookManager interface {
