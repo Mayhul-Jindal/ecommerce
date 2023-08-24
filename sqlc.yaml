@@ -7,11 +7,11 @@ sql:
     schema: "./database/migrations"
     gen:
       go:
-        package: "database"
-        out: "./database/sqlc"
+        package: "postgres"
+        out: "./database/postgres"
         sql_package: "pgx/v5"
         emit_json_tags: true
-        emit_interface: false
+        emit_interface: true
         overrides:
         - db_type: "timestamptz"
           go_type: "time.Time"

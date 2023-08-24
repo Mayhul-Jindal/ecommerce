@@ -5,9 +5,10 @@ import "fmt"
 func main() {
 	fmt.Println("testing my service")
 	
-	bussinessLogic := NewBookManager()
-	blWithLogging := NewLoggingService(bussinessLogic)
-	server := NewAPIServer(":3000", blWithLogging)
+	database := NewPostgresStore()
+	// bussinessLogic := NewBookManager(database)
+	// blWithLogging := NewLoggingService(bussinessLogic)
+	server := NewAPIServer(":3000", database)
 	server.Run()
 }
 

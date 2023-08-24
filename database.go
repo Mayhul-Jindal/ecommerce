@@ -7,9 +7,26 @@
 
 package main
 
-import "github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/types"
+import (
+	"context"
+	"fmt"
+	"os"
 
-type Database interface{
-	Get(name string) (types.Book, error)
-	Put() (error)
+	"github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/database/postgres"
+	"github.com/jackc/pgx/v5/pgxpool"
+)
+
+type Storer interface {
+	postgres.Querier
+}
+
+func NewPostgresStore() Storer {
+	dbPool, err := pgxpool.New(context.Background(), "postgresql://admin:admin@localhost:5432/book-store?sslmode=disable")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Unable to create connection pool: %v\n", err)
+		os.Exit(1)
+	}
+	
+	queries := postgres.New(dbPool)
+	return queries
 }

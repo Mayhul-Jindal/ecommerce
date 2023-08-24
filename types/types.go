@@ -1,3 +1,8 @@
+// TODO
+/*
+instead of this package , models.go should be used
+*/
+
 package types
 
 type contextKey string
@@ -15,8 +20,4 @@ type Review struct {
 	Username string `json:"username"`
 	Rating   int    `json:"rating"`
 	Comment  string `json:"comment"`
-}
-
-type Response struct{
-	Title string `json:"title"`
 }

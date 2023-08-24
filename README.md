@@ -32,7 +32,8 @@ I will be solving the following problem statement
 - sqlc vs gorm vs other 
 
 - database indexes filtering searching
-- 
+- sqlc ke models use honge saari jagah
+- change name of sqlc to postgres
 
 ## Resources
 - To learn about [sql-injection](https://go.dev/doc/database/sql-injection)
