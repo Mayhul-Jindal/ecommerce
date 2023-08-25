@@ -10,23 +10,31 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 
-	"github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/database/postgres"
+	"github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/database/sqlc"
+	"github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/util"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type Storer interface {
-	postgres.Querier
+	sqlc.Querier
 }
 
 func NewPostgresStore() Storer {
-	dbPool, err := pgxpool.New(context.Background(), "postgresql://admin:admin@localhost:5432/book-store?sslmode=disable")
+	config, err := util.LoadConfig(".")
+	if err != nil {
+		log.Fatalf("cannot load config: %v", err)
+	}
+
+	dbPool, err := pgxpool.New(context.Background(), config.DB_URL)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to create connection pool: %v\n", err)
 		os.Exit(1)
 	}
-	
-	queries := postgres.New(dbPool)
+	// defer dbPool.Close()
+
+	queries := sqlc.New(dbPool)
 	return queries
 }

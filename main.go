@@ -1,14 +1,18 @@
+// TODO
+/*
+- simple message in run
+*/
 package main
 
-import "fmt"
-
 func main() {
-	fmt.Println("testing my service")
-	
 	database := NewPostgresStore()
-	// bussinessLogic := NewBookManager(database)
-	// blWithLogging := NewLoggingService(bussinessLogic)
-	server := NewAPIServer(":3000", database)
+
+	// this is the auth serive invocation
+	authService := NewAuthManager(database)
+
+	// this is the book serive invocation
+	bookService := NewLoggingService(NewBookManager(database))
+
+	server := NewAPIServer(authService, bookService)
 	server.Run()
 }
-

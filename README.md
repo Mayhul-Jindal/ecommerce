@@ -35,6 +35,10 @@ I will be solving the following problem statement
 - sqlc ke models use honge saari jagah
 - change name of sqlc to postgres
 
+
+- Soft delete allows you to mark records as deleted without actually removing them from the database. This can be useful for scenarios where you want to retain the data for auditing or historical purposes.
+
+- tags se better seo, recommendations, search optimization 
 ## Resources
 - To learn about [sql-injection](https://go.dev/doc/database/sql-injection)
   
@@ -58,3 +62,8 @@ BHAIIIIIIII FOCUS ON THE BIGGER PICTURE FIRST
 THEN I WILL MAKE IT BETTER 
 
 
+
+
+createAcount mein validation
+getaccount add constraints
+getacounts pagination, add constraints

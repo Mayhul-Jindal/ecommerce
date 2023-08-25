@@ -1,43 +1,54 @@
 package util
 
 import (
-    "fmt"
-    "math/rand"
-    "strings"
-    "time"
+	"fmt"
+	"math/rand"
+	"strings"
+	"time"
 )
 
 const alphabet = "abcdefghijklmnopqrstuvwxyz"
 
 // RandomInt generates a random integer between min and max
 func RandomInt(min, max int32) int32 {
-    r := rand.New(rand.NewSource(time.Now().UnixNano()))
-    return min + r.Int31n(max-min+1)
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	return min + r.Int31n(max-min+1)
+}
+
+func RandomIntArray(min, max int) []int32 {
+	var arr []int32
+	r := int(RandomInt(int32(min), int32(max) - 1))
+
+	for i := 0; i < r; i++ {
+		arr = append(arr, RandomInt(int32(min), int32(max) - 1))
+	}
+
+	return arr
 }
 
 func RandomBigInt(min, max int64) int64 {
-    r := rand.New(rand.NewSource(time.Now().UnixNano()))
-    return min + r.Int63n(max-min+1)
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	return min + r.Int63n(max-min+1)
 }
 
 // RandomString generates a random string of length n
 func RandomString(n int) string {
-    var sb strings.Builder
-    k := len(alphabet)
+	var sb strings.Builder
+	k := len(alphabet)
 
-    r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 
-    for i := 0; i < n; i++ {
-        c := alphabet[r.Intn(k)]
-        sb.WriteByte(c)
-    }
+	for i := 0; i < n; i++ {
+		c := alphabet[r.Intn(k)]
+		sb.WriteByte(c)
+	}
 
-    return sb.String()
+	return sb.String()
 }
 
 // RandomEmail generates a random email
 func RandomEmail() string {
-    return fmt.Sprintf("%s@email.com", RandomString(6))
+	return fmt.Sprintf("%s@email.com", RandomString(6))
 }
 
 func RandomTags() []string {

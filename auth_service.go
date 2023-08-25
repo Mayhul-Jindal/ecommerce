@@ -1,42 +1,84 @@
+// TODO
+/*
+- this can be moved to a new microservice
+- give error types help us to identify what to send at what error if that makes sense 
+*/
+
 package main
 
-// import (
-// 	"context"
+import (
+	"context"
+	"encoding/json"
+	"net/http"
+	"time"
 
-// 	"github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/types"
-// )
+	"github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/database/sqlc"
+	"github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/util"
+)
 
-// type AuthManager interface {
-// 	GetAccount(id int)
-// }
+type AuthManager interface {
+	SignUp(context.Context, *http.Request) (UserResponse, error)
+}
 
-// type authManager struct{
-// 	db Storer
-// }
+type authManager struct {
+	db Storer
+}
 
-// func NewAuthManager(db Storer) AuthManager {
-// 	return &authManager{
-// 		db: db,
-// 	}
-// }
+type CreateUserRequest struct {
+	Username string `json:"username" validate:"required|min_len:7"`
+	Email    string `json:"email" validate:"required,email"`
+	Password string `json:"password" validate:"required|min_len:7"`
+}
 
-// func (b *authManager) Search(ctx context.Context, query string) ([]types.Book, error){
-// 	return nil, nil
-// }
+type UserResponse struct {
+	Username          string    `json:"username"`
+	Email             string    `json:"email"`
+	PasswordChangedAt time.Time `json:"password_changed_at"`
+	CreatedAt         time.Time `json:"created_at"`
+}
 
-// func (b *authManager) Filter(ctx context.Context, contraints string) ([]types.Book, error) {
-// 	return nil, nil
-// }
+func newUserResponse(user sqlc.User) UserResponse {
+	return UserResponse{
+		Username:          user.Username,
+		Email:             user.Email,
+		PasswordChangedAt: user.PasswordChangedAt,
+		CreatedAt:         user.CreatedAt,
+	}
+}
 
-// func (b *authManager) AddtoCart(ctx context.Context, book types.Book) error {
-// 	return nil
-// }
+func NewAuthManager(db Storer) AuthManager {
+	return &authManager{
+		db: db,
+	}
+}
 
-// func (b *authManager) DownloadBooks(ctx context.Context, books []types.Book) error {
-// 	return nil
-// }
+// signup logic here
+func (a *authManager) SignUp(ctx context.Context, r *http.Request) (UserResponse, error) {
+	// request validation goes here
+	var req CreateUserRequest
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		return UserResponse{}, err
+	}
 
-// func (b *authManager) ReviewBook(ctx context.Context, book types.Book, review types.Review) error {
-// 	return nil
-// }
+	// here the logic with database and stuff is done here
+	hashedPassword, err := util.HashPassword(req.Password)
+	if err != nil {
+		return UserResponse{}, err
+	}
+
+	user := sqlc.CreateUserParams{
+		Username:       req.Username,
+		Email:          req.Email,
+		HashedPassword: hashedPassword,
+	}
+
+	registeredUser, err := a.db.CreateUser(ctx, user)
+	if err != nil {
+		return UserResponse{}, err
+	}
+
+	return newUserResponse(registeredUser), nil
+}
+
 

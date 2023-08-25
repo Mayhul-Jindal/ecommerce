@@ -11,37 +11,46 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/errors"
 	"github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/types"
+	"github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/util"
 	"github.com/gorilla/mux"
 )
 
-type Response struct{
+type Response struct {
 	Title string `json:"title"`
 }
 
+// this helps me to decouple the auth logic from book management stuff
 type APIServer struct {
 	listenAddr string
-	db         Storer
+	bookSvc    BookManager
+	authSvc    AuthManager
 }
 
-func NewAPIServer(listenAddr string, db Storer) *APIServer {
+func NewAPIServer(authSvc AuthManager, bookSvc BookManager) *APIServer {
+	config, err := util.LoadConfig(".")
+	if err != nil {
+		log.Fatalf("cannot load config: %v", err)
+	}
+
 	return &APIServer{
-		listenAddr: listenAddr,
-		db:         db,
+		listenAddr: config.SERVER_PORT,
+		bookSvc:    bookSvc,
+		authSvc:    authSvc,
 	}
 }
 
 func (s *APIServer) Run() {
 	router := mux.NewRouter()
 	router.HandleFunc("/", makeAPIFunc(s.handleRoot))
-	router.HandleFunc("/users/signup", makeAPIFunc(s.handleSignup)).Methods("POST")
-	router.HandleFunc("/users/login", makeAPIFunc(s.handleLogin)).Methods("POST")
-	router.HandleFunc("/users", makeAPIFunc(s.handleUsers)).Methods("GET")
-	router.HandleFunc("/users/{id}", makeAPIFunc(s.handleUserById)).Methods("GET")
+	router.HandleFunc("/users/signup", makeAPIFunc(s.handleSignup))
+
+	// router.HandleFunc("/users/login", makeAPIFunc(s.handleLogin)).Methods("POST")
+	// router.HandleFunc("/users", makeAPIFunc(s.handleUsers)).Methods("GET")
+	// router.HandleFunc("/users/{id}", makeAPIFunc(s.handleUserById)).Methods("GET")
 
 	http.ListenAndServe(s.listenAddr, router)
 }
@@ -58,48 +67,32 @@ func (s *APIServer) handleRoot(ctx context.Context, w http.ResponseWriter, r *ht
 
 // handle for signup
 func (s *APIServer) handleSignup(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
-	resp := Response{Title: "hello wolrd"}
-	return writeJSON(w, http.StatusOK, resp)
-}
+	if r.Method != "POST" {
+		return writeJSON(w, http.StatusMethodNotAllowed, APIError{Error: errors.ErrorMethodNotAllowed.Error()})
+	}
 
-func (s *APIServer) handleLogin(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
-	resp := Response{Title: "hello wolrd"}
-	return writeJSON(w, http.StatusOK, resp)
-}
-
-func (s *APIServer) handleUsers(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
-	resp := Response{Title: "hello wolrd"}
-	return writeJSON(w, http.StatusOK, resp)
-}
-
-func (s *APIServer) handleUserById(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
-	id := mux.Vars(r)["id"]
-	idd, err := strconv.ParseInt(id, 10, 64)
+	resp, err := s.authSvc.SignUp(ctx, r)
 	if err != nil {
-		log.Println("1")
 		return err
 	}
 
-	resp, err := s.db.GetBook(ctx, idd)
-	if err != nil {
-		log.Println("2")
-		return err
-	}
-
-	log.Printf("%+v", resp)
 	return writeJSON(w, http.StatusOK, resp)
 }
 
+// func (s *APIServer) handleLogin(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+// 	resp := Response{Title: "hello wolrd"}
+// 	return writeJSON(w, http.StatusOK, resp)
+// }
 
+// func (s *APIServer) handleUsers(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+// 	resp := Response{Title: "hello wolrd"}
+// 	return writeJSON(w, http.StatusOK, resp)
+// }
 
-
-
-
-
-
-
-
-
+// func (s *APIServer) handleUserById(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+// 	resp := Response{Title: "wef"}
+// 	return writeJSON(w, http.StatusOK, resp)
+// }
 
 // type for my api handlers
 type APIFunc func(ctx context.Context, w http.ResponseWriter, r *http.Request) error
@@ -127,6 +120,7 @@ func makeAPIFunc(fn APIFunc) http.HandlerFunc {
 		defer cancel()
 
 		if err := fn(ctx, w, r); err != nil {
+			// abhi currently mostly internal server hee dikhenge 
 			writeJSON(w, http.StatusInternalServerError, APIError{Error: err.Error()})
 		}
 	}
