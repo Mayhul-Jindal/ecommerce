@@ -1,23 +1,23 @@
 // TODO
 /*
-- make error.go jisme one should put all types of errors in sqlc package
+- make error.go jisme one should put all types of errors in database package
 */
 
-package sqlc_test
+package database_test
 
 import (
 	"context"
 	"testing"
 	"time"
 
-	"github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/database/sqlc"
+	database "github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/database/sqlc"
 	"github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/util"
 	"github.com/stretchr/testify/require"
 )
 
 // helper function for my tests. this is to avoid dependencies between tests (each test sare independent)
-func CreateRandomBook(t *testing.T) sqlc.Book {
-	book1 := sqlc.CreateBookParams{
+func CreateRandomBook(t *testing.T) database.Book {
+	book1 := database.CreateBookParams{
 		Title:       util.RandomString(10),
 		Author:      util.RandomString(10),
 		TagsArray:   util.RandomIntArray(1, 5),
@@ -69,12 +69,12 @@ func TestGetBook(t *testing.T) {
 
 // this test is bit buggy
 func TestGetBooks(t *testing.T) {
-	var lastBook sqlc.Book
+	var lastBook database.Book
 	for i := 0; i < 5; i++ {
 		lastBook = CreateRandomBook(t)
 	}
 
-	arg := sqlc.GetBooksParams{
+	arg := database.GetBooksParams{
 		Limit:  5,
 		Offset: 0,
 	}
@@ -82,15 +82,14 @@ func TestGetBooks(t *testing.T) {
 	require.NoError(t, err)
 	require.NotEmpty(t, books)
 
-	require.Equal(t, lastBook.Author, books[ len(books)-1 ].Author)
-	
+	require.Equal(t, lastBook.Author, books[len(books)-1].Author)
 }
 
 func TestUpdateBookDesc(t *testing.T) {
 	book1 := CreateRandomBook(t)
 
 	newDesc := util.RandomString(10)
-	arg := sqlc.UpdateBookDescParams{
+	arg := database.UpdateBookDescParams{
 		ID:          book1.ID,
 		Description: newDesc,
 	}

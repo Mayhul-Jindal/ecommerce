@@ -2,7 +2,7 @@
 // versions:
 //   sqlc v1.19.1
 
-package sqlc
+package database
 
 import (
 	"context"
@@ -16,6 +16,7 @@ type Querier interface {
 	DeleteBook(ctx context.Context, id int64) error
 	DeleteReview(ctx context.Context, id int64) error
 	GetAllTags(ctx context.Context) ([]Tag, error)
+	// TODO rating with reviews bhi merge hone chahiye isme ideally
 	GetBook(ctx context.Context, id int64) (Book, error)
 	GetBooks(ctx context.Context, arg GetBooksParams) ([]Book, error)
 	GetReviewsByBookId(ctx context.Context, arg GetReviewsByBookIdParams) ([]Review, error)

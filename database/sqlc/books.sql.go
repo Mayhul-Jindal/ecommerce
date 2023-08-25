@@ -3,7 +3,7 @@
 //   sqlc v1.19.1
 // source: books.sql
 
-package sqlc
+package database
 
 import (
 	"context"
@@ -65,6 +65,7 @@ select id, title, author, tags_array, price, quantity, description, created_at f
 where id = $1 limit 1
 `
 
+// TODO rating with reviews bhi merge hone chahiye isme ideally
 func (q *Queries) GetBook(ctx context.Context, id int64) (Book, error) {
 	row := q.db.QueryRow(ctx, getBook, id)
 	var i Book

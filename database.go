@@ -13,13 +13,13 @@ import (
 	"log"
 	"os"
 
-	"github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/database/sqlc"
+	database "github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/database/sqlc"
 	"github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/util"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type Storer interface {
-	sqlc.Querier
+	database.Querier
 }
 
 func NewPostgresStore() Storer {
@@ -35,6 +35,6 @@ func NewPostgresStore() Storer {
 	}
 	// defer dbPool.Close()
 
-	queries := sqlc.New(dbPool)
+	queries := database.New(dbPool)
 	return queries
 }

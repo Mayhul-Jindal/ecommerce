@@ -3,7 +3,7 @@
 //   sqlc v1.19.1
 // source: tags.sql
 
-package sqlc
+package database
 
 import (
 	"context"

@@ -1,7 +1,7 @@
 // TODO
 /*
 - this can be moved to a new microservice
-- give error types help us to identify what to send at what error if that makes sense 
+- give error types help us to identify what to send at what error if that makes sense
 */
 
 package main
@@ -12,7 +12,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/database/sqlc"
+	database "github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/database/sqlc"
 	"github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/util"
 )
 
@@ -37,7 +37,7 @@ type UserResponse struct {
 	CreatedAt         time.Time `json:"created_at"`
 }
 
-func newUserResponse(user sqlc.User) UserResponse {
+func newUserResponse(user database.User) UserResponse {
 	return UserResponse{
 		Username:          user.Username,
 		Email:             user.Email,
@@ -67,7 +67,7 @@ func (a *authManager) SignUp(ctx context.Context, r *http.Request) (UserResponse
 		return UserResponse{}, err
 	}
 
-	user := sqlc.CreateUserParams{
+	user := database.CreateUserParams{
 		Username:       req.Username,
 		Email:          req.Email,
 		HashedPassword: hashedPassword,
@@ -80,5 +80,3 @@ func (a *authManager) SignUp(ctx context.Context, r *http.Request) (UserResponse
 
 	return newUserResponse(registeredUser), nil
 }
-
-

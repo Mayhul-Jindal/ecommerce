@@ -1,23 +1,23 @@
-package sqlc_test
+package database_test
 
 import (
 	"context"
 	"testing"
 
-	"github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/database/sqlc"
+	database "github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/database/sqlc"
 	"github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/util"
 	"github.com/stretchr/testify/require"
 )
 
-func CreateRandomUser(t *testing.T) sqlc.User{
-	return sqlc.User{}
+func CreateRandomUser(t *testing.T) database.User {
+	return database.User{}
 }
 
-func CreateRandomReview(t *testing.T) sqlc.Review{
-	review := sqlc.CreateReviewParams{
-		UserID: util.RandomBigInt(1, 100),
-		BookID: util.RandomBigInt(1, 100),
-		Rating: util.RandomInt(1, 5),
+func CreateRandomReview(t *testing.T) database.Review {
+	review := database.CreateReviewParams{
+		UserID:  util.RandomBigInt(1, 100),
+		BookID:  util.RandomBigInt(1, 100),
+		Rating:  util.RandomInt(1, 5),
 		Comment: util.RandomString(10),
 	}
 

@@ -29,11 +29,11 @@ I will be solving the following problem statement
 - <iframe width="560" height="315" src='https://dbdiagram.io/embed/64e4cc4c02bd1c4a5e353140'> </iframe>
 
 - why migrate tool is needed 
-- sqlc vs gorm vs other 
+- database vs gorm vs other 
 
 - database indexes filtering searching
-- sqlc ke models use honge saari jagah
-- change name of sqlc to postgres
+- database ke models use honge saari jagah
+- change name of database to postgres
 
 
 - Soft delete allows you to mark records as deleted without actually removing them from the database. This can be useful for scenarios where you want to retain the data for auditing or historical purposes.

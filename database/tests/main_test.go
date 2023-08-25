@@ -1,4 +1,4 @@
-package sqlc_test
+package database_test
 
 import (
 	"context"
@@ -7,13 +7,13 @@ import (
 	"os"
 	"testing"
 
-	"github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/database/sqlc"
+	database "github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/database/sqlc"
 	"github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/util"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 // This struct will be used by other tests. This struct has methods
-var testQueries *sqlc.Queries
+var testQueries *database.Queries
 
 func TestMain(m *testing.M) {
 	config, err := util.LoadConfig("../..")
@@ -29,6 +29,6 @@ func TestMain(m *testing.M) {
 	}
 	defer dbPool.Close()
 
-	testQueries = sqlc.New(dbPool)
+	testQueries = database.New(dbPool)
 	os.Exit(m.Run())
 }

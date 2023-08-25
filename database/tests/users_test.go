@@ -1,19 +1,19 @@
-package sqlc_test
+package database_test
 
 import (
 	"context"
 	"testing"
 
-	"github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/database/sqlc"
+	database "github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/database/sqlc"
 	"github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/util"
 	"github.com/stretchr/testify/require"
 )
 
-func createRandomUser(t *testing.T) sqlc.User {
+func createRandomUser(t *testing.T) database.User {
 	hashedPassword, err := util.HashPassword(util.RandomString(6))
 	require.NoError(t, err)
 
-	arg := sqlc.CreateUserParams{
+	arg := database.CreateUserParams{
 		Username:       util.RandomString(5),
 		Email:          util.RandomEmail(),
 		HashedPassword: hashedPassword,

@@ -3,7 +3,7 @@
 //   sqlc v1.19.1
 // source: review.sql
 
-package sqlc
+package database
 
 import (
 	"context"
