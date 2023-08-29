@@ -39,6 +39,12 @@ I will be solving the following problem statement
 - Soft delete allows you to mark records as deleted without actually removing them from the database. This can be useful for scenarios where you want to retain the data for auditing or historical purposes.
 
 - tags se better seo, recommendations, search optimization 
+
+- JWT give developers too many algorithms to choos, some algorithms are known to be vulnerable(ECDSA, RSA)
+- trivial forgery "alg" to "none"
+- it is crutial to check eaders jisse symetric keys aur asymteric keys wala issue na hoajye
+- you can see there are many issue with jwt that is why use paesto (it follows the best practices)
+
 ## Resources
 - To learn about [sql-injection](https://go.dev/doc/database/sql-injection)
   

@@ -20,15 +20,9 @@ CREATE TABLE "Sessions" (
   "client_ip" varchar NOT NULL,
   "is_blocked" boolean NOT NULL DEFAULT false,
   "expires_at" timestamptz NOT NULL,
-  "created_at" timestamptz NOT NULL DEFAULT (now())
-);
+  "created_at" timestamptz NOT NULL DEFAULT (now()),
 
-CREATE TABLE "Addresses" (
-  "user_id" bigserial NOT NULL,
-  "address_line" varchar NOT NULL,
-  "city" varchar NOT NULL,
-  "state" varchar NOT NULL,
-  "country" varchar NOT NULL
+  FOREIGN KEY ("user_id") REFERENCES "Users" ("id")
 );
 
 CREATE TABLE "Books" (
@@ -37,13 +31,13 @@ CREATE TABLE "Books" (
   "author" varchar NOT NULL,
   "tags_array" integer[],
   "price" int NOT NULL,
-  "quantity" int NOT NULL DEFAULT 100,
   "description" varchar not null,
+  "download_link" varchar not null,
   "created_at" timestamptz NOT NULL DEFAULT (now())
 );
 
 CREATE TABLE "Tags" (
-  "id" serial NOT NULL,
+  "id" int unique NOT NULL,
   "tag_name" varchar NOT NULL
 );
 
@@ -53,63 +47,48 @@ CREATE TABLE "Reviews" (
   "book_id" bigserial NOT NULL,
   "rating" int NOT NULL,
   "comment" varchar NOT NULL,
-  "created_at" timestamptz NOT NULL DEFAULT (now())
+  "created_at" timestamptz NOT NULL DEFAULT (now()),
+
+  FOREIGN KEY ("user_id") REFERENCES "Users" ("id"),
+  FOREIGN KEY ("book_id") REFERENCES "Books" ("id"),
+  constraint "reviews_user_book_key" unique ("user_id", "book_id")
 );
 
 CREATE TABLE "Carts" (
   "id" bigserial PRIMARY KEY NOT NULL,
   "user_id" bigserial NOT NULL,
-  "created_at" timestamptz NOT NULL DEFAULT (now())
-);
-
-CREATE TABLE "Cart_Items" (
-  "id" bigserial PRIMARY KEY NOT NULL,
-  "cart_id" bigserial NOT NULL,
   "book_id" bigserial NOT NULL,
-  "quantity" int NOT NULL DEFAULT 1,
-  "created_at" timestamptz NOT NULL DEFAULT (now())
+  "created_at" timestamptz NOT NULL DEFAULT (now()),
+
+  FOREIGN KEY ("user_id") REFERENCES "Users" ("id"),
+  FOREIGN KEY ("book_id") REFERENCES "Books" ("id"),
+  CONSTRAINT "carts_user_book_key" UNIQUE ("user_id", "book_id")
 );
 
 CREATE TABLE "Orders" (
   "id" bigserial PRIMARY KEY NOT NULL,
+  "razorpay_order_id" varchar unique not null,
   "user_id" bigserial NOT NULL,
-  "total_money" int NOT NULL,
-  "order_status" boolean NOT NULL DEFAULT false,
-  "created_at" timestamptz NOT NULL DEFAULT (now())
+  "total_money" float NOT NULL,
+  "status" varchar NOT NULL DEFAULT false,
+  "created_at" timestamptz NOT NULL DEFAULT (now()),
+
+  FOREIGN KEY ("user_id") REFERENCES "Users" ("id"),
+  CONSTRAINT "orders_razor_user_key" UNIQUE ("razorpay_order_id", "user_id")
 );
 
-CREATE TABLE "Order_Lines" (
+CREATE TABLE "Purchases" (
   "id" bigserial PRIMARY KEY NOT NULL,
+  "user_id" bigserial NOT NULL,
   "book_id" bigserial NOT NULL,
   "order_id" bigserial NOT NULL,
-  "quantity" int NOT NULL,
-  "created_at" timestamptz NOT NULL DEFAULT (now())
+  "created_at" timestamptz NOT NULL DEFAULT (now()),
+
+  FOREIGN KEY ("book_id") REFERENCES "Books" ("id"),
+  FOREIGN KEY ("order_id") REFERENCES "Orders" ("id"),
+  FOREIGN KEY ("order_id") REFERENCES "Users" ("id"),
+  CONSTRAINT "order_lines_orderid_book_key" UNIQUE ("order_id", "book_id")
 );
 
-CREATE INDEX ON "Users" ("email");
+-- TODO: Create indexes wherever possible to speed things up
 
-CREATE INDEX ON "Reviews" ("user_id", "book_id");
-
-ALTER TABLE "Sessions" ADD FOREIGN KEY ("user_id") REFERENCES "Users" ("id");
-
-ALTER TABLE "Addresses" ADD FOREIGN KEY ("user_id") REFERENCES "Users" ("id");
-
-ALTER TABLE "Reviews" ADD FOREIGN KEY ("user_id") REFERENCES "Users" ("id");
-
-ALTER TABLE "Reviews" ADD FOREIGN KEY ("book_id") REFERENCES "Books" ("id");
-
-ALTER TABLE "Carts" ADD FOREIGN KEY ("user_id") REFERENCES "Users" ("id");
-
-ALTER TABLE "Cart_Items" ADD FOREIGN KEY ("cart_id") REFERENCES "Carts" ("id");
-
-ALTER TABLE "Cart_Items" ADD FOREIGN KEY ("book_id") REFERENCES "Books" ("id");
-
-ALTER TABLE "Orders" ADD FOREIGN KEY ("user_id") REFERENCES "Users" ("id");
-
-ALTER TABLE "Order_Lines" ADD FOREIGN KEY ("book_id") REFERENCES "Books" ("id");
-
-ALTER TABLE "Order_Lines" ADD FOREIGN KEY ("order_id") REFERENCES "Orders" ("id");
-
-CREATE INDEX books_array_index ON "Books" USING GIN (tags_array);
-
-Alter table "Reviews" add constraint "user_book_key" unique ("user_id", "book_id");

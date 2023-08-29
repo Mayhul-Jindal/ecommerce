@@ -1,8 +1,8 @@
 -- name: CreateTag :one
 INSERT INTO "Tags" (
-  tag_name
+  id, tag_name
 ) VALUES (
-  $1
+  $1, $2
 )
 RETURNING *;
 

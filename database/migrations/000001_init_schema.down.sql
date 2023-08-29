@@ -1,1 +1,1 @@
-DROP TABLE "Users", "Sessions", "Addresses", "Books", "Tags", "Reviews", "Carts", "Cart_Items", "Orders", "Order_Lines" CASCADE;
+DROP TABLE "Users", "Sessions", "Books", "Tags", "Reviews", "Carts", "Orders", "Order_Lines" CASCADE;

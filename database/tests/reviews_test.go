@@ -15,8 +15,8 @@ func CreateRandomUser(t *testing.T) database.User {
 
 func CreateRandomReview(t *testing.T) database.Review {
 	review := database.CreateReviewParams{
-		UserID:  util.RandomBigInt(1, 100),
-		BookID:  util.RandomBigInt(1, 100),
+		UserID:  util.RandomBigInt(1, 50),
+		BookID:  util.RandomBigInt(51, 1000),
 		Rating:  util.RandomInt(1, 5),
 		Comment: util.RandomString(10),
 	}

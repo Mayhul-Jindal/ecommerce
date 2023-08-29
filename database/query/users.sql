@@ -8,7 +8,20 @@ RETURNING *;
 
 -- name: GetUser :one
 select * from "Users"
-where id = $1 limit 1;
+where id = $1 and username = $2
+limit 1;
+
+-- name: DeactivateUser :one
+UPDATE "Users" 
+SET is_active = false 
+WHERE id = $1
+RETURNING *;
+
+-- name: DeleteUser :one 
+UPDATE "Users" 
+SET IsDeleted = true 
+WHERE id = $1
+RETURNING *;;
 
 -- -- name: GetUsers :many
 -- select * from "Users"

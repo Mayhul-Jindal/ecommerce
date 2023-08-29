@@ -43,13 +43,71 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 	return i, err
 }
 
-const getUser = `-- name: GetUser :one
-select id, username, email, hashed_password, password_changed_at, is_admin, is_active, deactivated_at, is_deleted, deleted_at, created_at from "Users"
-where id = $1 limit 1
+const deactivateUser = `-- name: DeactivateUser :one
+UPDATE "Users" 
+SET is_active = false 
+WHERE id = $1
+RETURNING id, username, email, hashed_password, password_changed_at, is_admin, is_active, deactivated_at, is_deleted, deleted_at, created_at
 `
 
-func (q *Queries) GetUser(ctx context.Context, id int64) (User, error) {
-	row := q.db.QueryRow(ctx, getUser, id)
+func (q *Queries) DeactivateUser(ctx context.Context, id int64) (User, error) {
+	row := q.db.QueryRow(ctx, deactivateUser, id)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.Email,
+		&i.HashedPassword,
+		&i.PasswordChangedAt,
+		&i.IsAdmin,
+		&i.IsActive,
+		&i.DeactivatedAt,
+		&i.IsDeleted,
+		&i.DeletedAt,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const deleteUser = `-- name: DeleteUser :one
+UPDATE "Users" 
+SET IsDeleted = true 
+WHERE id = $1
+RETURNING id, username, email, hashed_password, password_changed_at, is_admin, is_active, deactivated_at, is_deleted, deleted_at, created_at
+`
+
+func (q *Queries) DeleteUser(ctx context.Context, id int64) (User, error) {
+	row := q.db.QueryRow(ctx, deleteUser, id)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.Email,
+		&i.HashedPassword,
+		&i.PasswordChangedAt,
+		&i.IsAdmin,
+		&i.IsActive,
+		&i.DeactivatedAt,
+		&i.IsDeleted,
+		&i.DeletedAt,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const getUser = `-- name: GetUser :one
+select id, username, email, hashed_password, password_changed_at, is_admin, is_active, deactivated_at, is_deleted, deleted_at, created_at from "Users"
+where id = $1 and username = $2
+limit 1
+`
+
+type GetUserParams struct {
+	ID       int64  `json:"id"`
+	Username string `json:"username"`
+}
+
+func (q *Queries) GetUser(ctx context.Context, arg GetUserParams) (User, error) {
+	row := q.db.QueryRow(ctx, getUser, arg.ID, arg.Username)
 	var i User
 	err := row.Scan(
 		&i.ID,

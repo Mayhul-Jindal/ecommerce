@@ -11,11 +11,11 @@ import (
 
 const createBook = `-- name: CreateBook :one
 INSERT INTO "Books" (
-  title, author, tags_array, price, quantity, description
+  title, author, tags_array, price, description
 ) VALUES (
-  $1, $2, $3, $4, $5, $6
+  $1, $2, $3, $4, $5
 )
-RETURNING id, title, author, tags_array, price, quantity, description, created_at
+RETURNING id, title, author, tags_array, price, description, download_link, created_at
 `
 
 type CreateBookParams struct {
@@ -23,7 +23,6 @@ type CreateBookParams struct {
 	Author      string  `json:"author"`
 	TagsArray   []int32 `json:"tags_array"`
 	Price       int32   `json:"price"`
-	Quantity    int32   `json:"quantity"`
 	Description string  `json:"description"`
 }
 
@@ -33,7 +32,6 @@ func (q *Queries) CreateBook(ctx context.Context, arg CreateBookParams) (Book, e
 		arg.Author,
 		arg.TagsArray,
 		arg.Price,
-		arg.Quantity,
 		arg.Description,
 	)
 	var i Book
@@ -43,8 +41,8 @@ func (q *Queries) CreateBook(ctx context.Context, arg CreateBookParams) (Book, e
 		&i.Author,
 		&i.TagsArray,
 		&i.Price,
-		&i.Quantity,
 		&i.Description,
+		&i.DownloadLink,
 		&i.CreatedAt,
 	)
 	return i, err
@@ -55,87 +53,32 @@ DELETE FROM "Books"
 WHERE id = $1
 `
 
+// TODO: What happens when a book is deleted ?
 func (q *Queries) DeleteBook(ctx context.Context, id int64) error {
 	_, err := q.db.Exec(ctx, deleteBook, id)
 	return err
 }
 
-const getBook = `-- name: GetBook :one
-select id, title, author, tags_array, price, quantity, description, created_at from "Books"
-where id = $1 limit 1
-`
+const getBookById = `-- name: GetBookById :one
 
-// TODO rating with reviews bhi merge hone chahiye isme ideally
-func (q *Queries) GetBook(ctx context.Context, id int64) (Book, error) {
-	row := q.db.QueryRow(ctx, getBook, id)
-	var i Book
-	err := row.Scan(
-		&i.ID,
-		&i.Title,
-		&i.Author,
-		&i.TagsArray,
-		&i.Price,
-		&i.Quantity,
-		&i.Description,
-		&i.CreatedAt,
-	)
-	return i, err
-}
 
-const getBooks = `-- name: GetBooks :many
-select id, title, author, tags_array, price, quantity, description, created_at from "Books"
-limit $1
-offset $2
-`
-
-type GetBooksParams struct {
-	Limit  int32 `json:"limit"`
-	Offset int32 `json:"offset"`
-}
-
-func (q *Queries) GetBooks(ctx context.Context, arg GetBooksParams) ([]Book, error) {
-	rows, err := q.db.Query(ctx, getBooks, arg.Limit, arg.Offset)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []Book{}
-	for rows.Next() {
-		var i Book
-		if err := rows.Scan(
-			&i.ID,
-			&i.Title,
-			&i.Author,
-			&i.TagsArray,
-			&i.Price,
-			&i.Quantity,
-			&i.Description,
-			&i.CreatedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const updateBookDesc = `-- name: UpdateBookDesc :one
 UPDATE "Books"
 set "description" = $2
 WHERE "id" = $1
-RETURNING id, title, author, tags_array, price, quantity, description, created_at
+RETURNING id, title, author, tags_array, price, description, download_link, created_at
 `
 
-type UpdateBookDescParams struct {
+type GetBookByIdParams struct {
 	ID          int64  `json:"id"`
 	Description string `json:"description"`
 }
 
-func (q *Queries) UpdateBookDesc(ctx context.Context, arg UpdateBookDescParams) (Book, error) {
-	row := q.db.QueryRow(ctx, updateBookDesc, arg.ID, arg.Description)
+// select b.id, b.title, b.author, b.price, array_agg(r.comment) as comments from "Books" b
+// join "Reviews" r on r.book_id = b.id
+// where b.id = $1
+// group by b.id, b.title, b.author, b.price;
+func (q *Queries) GetBookById(ctx context.Context, arg GetBookByIdParams) (Book, error) {
+	row := q.db.QueryRow(ctx, getBookById, arg.ID, arg.Description)
 	var i Book
 	err := row.Scan(
 		&i.ID,
@@ -143,8 +86,8 @@ func (q *Queries) UpdateBookDesc(ctx context.Context, arg UpdateBookDescParams) 
 		&i.Author,
 		&i.TagsArray,
 		&i.Price,
-		&i.Quantity,
 		&i.Description,
+		&i.DownloadLink,
 		&i.CreatedAt,
 	)
 	return i, err
