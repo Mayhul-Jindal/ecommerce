@@ -6,14 +6,11 @@ INSERT INTO "Orders" (
 )
 RETURNING *;
 
--- nmae: AddOrderItems :many
-INSERT INTO "Order_Lines" (
-  book_id, order_id
-) VALUES (
-  $1, $2
-)
-RETURNING *;
 
 -- name: GetOrderId :one
 select id from "Orders"
 where id = $1;
+
+
+
+-- TODO use the expired_at > now() to handle some stuff

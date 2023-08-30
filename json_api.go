@@ -1,7 +1,9 @@
 // TODO
 /*
-- make different endpoints for different things
-- make tests for http endpoints
+- I have is_email_verified  {usethis for add to cart restriction}
+- I have is_admin
+- I have is_deactivated
+- T have is_deleted
 */
 
 // this is currentyl acting as api gateway for my whole architecture
@@ -10,8 +12,10 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -34,9 +38,10 @@ type APIServer struct {
 	bookSvc    BookManager
 	authSvc    AuthManager
 	tokenSvc   token.Maker
+	validator *validator.Validate
 }
 
-func NewAPIServer(authSvc AuthManager, bookSvc BookManager, tokenSvc token.Maker) *APIServer {
+func NewAPIServer(authSvc AuthManager, bookSvc BookManager, tokenSvc token.Maker, validator *validator.Validate) *APIServer {
 	config, err := util.LoadConfig(".")
 	if err != nil {
 		log.Fatalf("cannot load config: %v", err)
@@ -47,6 +52,7 @@ func NewAPIServer(authSvc AuthManager, bookSvc BookManager, tokenSvc token.Maker
 		bookSvc:    bookSvc,
 		authSvc:    authSvc,
 		tokenSvc:   tokenSvc,
+		validator: validator,
 	}
 }
 
@@ -56,16 +62,17 @@ func (s *APIServer) Run() {
 	// unauthorized routes
 	router.HandleFunc("/users/signup", makeAPIFunc(s.handleSignup))
 	router.HandleFunc("/users/login", makeAPIFunc(s.handleLogin))
+	router.HandleFunc("/users/renew_access", makeAPIFunc(s.handleRenewAccess))
+	router.HandleFunc("/users/verify_email", makeAPIFunc(s.handleVerifyEmail))
 	router.HandleFunc("/search", makeAPIFunc(s.handleSearch))
 
 	// authorized routes
 	router.HandleFunc("/", makeAPIFunc(s.checkAuthorization(s.handleRoot)))
-	// router.HandleFunc("/users/deactivate", makeAPIFunc(s.checkAuthorization(s.handle)))
-	// router.HandleFunc("/users/delete", makeAPIFunc(s.checkAuthorization(s.handleRoot)))
 	router.HandleFunc("/cart/{action}", makeAPIFunc(s.checkAuthorization(s.handleCart)))
-	router.HandleFunc("/order/{action}", makeAPIFunc(s.checkAuthorization(s.handleOrder)))
+	router.HandleFunc("/order/{action}", makeAPIFunc(s.checkAuthorization(s.handleOrder))) 
 	// router.HandleFunc("/review", makeAPIFunc(s.checkAuthorization(s.handleCart)))
-
+	// router.HandleFunc("/users/deactivate", makeAPIFunc(s.checkAuthorization(s.handleDeactivateAccount)))
+	// router.HandleFunc("/users/delete", makeAPIFunc(s.checkAuthorization(s.handleRoot)))
 	http.ListenAndServe(s.listenAddr, router)
 }
 
@@ -82,8 +89,7 @@ func (s *APIServer) handleSignup(ctx context.Context, w http.ResponseWriter, r *
 		return err
 	}
 
-	validate := validator.New()
-	err = validate.Struct(req)
+	err = s.validator.Struct(req)
 	if err != nil {
 		return err
 	}
@@ -109,8 +115,8 @@ func (s *APIServer) handleLogin(ctx context.Context, w http.ResponseWriter, r *h
 		return errs.ErrorBadRequest
 	}
 
-	validate := validator.New()
-	err = validate.Struct(req)
+	
+	err = s.validator.Struct(req)
 	if err != nil {
 		return err
 	}
@@ -122,6 +128,51 @@ func (s *APIServer) handleLogin(ctx context.Context, w http.ResponseWriter, r *h
 
 	return writeJSON(w, http.StatusOK, resp)
 }
+
+func (s *APIServer) handleRenewAccess(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+	if r.Method != "POST" {
+		return errs.ErrorMethodNotAllowed
+	}
+
+	// request validation
+	var req types.RenewAccessTokenRequest
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		return errs.ErrorBadRequest
+	}
+
+	
+	err = s.validator.Struct(req)
+	if err != nil {
+		return err
+	}
+
+	resp, err := s.authSvc.RenewAccess(ctx, req)
+	if err != nil {
+		return err
+	}
+
+	return writeJSON(w, http.StatusOK, resp)
+}
+
+
+// handle verify email
+func (s *APIServer) handleVerifyEmail(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+	num, err := strconv.ParseInt(r.URL.Query().Get("id"), 10, 64)
+	if err != nil || num < 1{
+		fmt.Println("Error:", err)
+		return errs.ErrorBadRequest
+	}
+	secretCode := r.URL.Query().Get("secret_code")
+
+	resp, err := s.authSvc.VerifyEmail(ctx, num, secretCode)
+	if err != nil {
+		return err
+	}
+
+	return writeJSON(w, http.StatusOK, resp)
+}
+
 
 // handle search
 func (s *APIServer) handleSearch(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
@@ -136,8 +187,8 @@ func (s *APIServer) handleSearch(ctx context.Context, w http.ResponseWriter, r *
 		return errs.ErrorBadRequest
 	}
 
-	validate := validator.New()
-	err = validate.Struct(req)
+	
+	err = s.validator.Struct(req)
 	if err != nil {
 		return err
 	}
@@ -184,8 +235,8 @@ func (s *APIServer) handleCart(ctx context.Context, w http.ResponseWriter, r *ht
 			return errs.ErrorBadRequest
 		}
 
-		validate := validator.New()
-		err = validate.Struct(req)
+		
+		err = s.validator.Struct(req)
 		if err != nil {
 			return err
 		}
@@ -206,8 +257,8 @@ func (s *APIServer) handleCart(ctx context.Context, w http.ResponseWriter, r *ht
 			return errs.ErrorBadRequest
 		}
 
-		validate := validator.New()
-		err = validate.Struct(req)
+		
+		err = s.validator.Struct(req)
 		if err != nil {
 			return err
 		}
@@ -228,8 +279,8 @@ func (s *APIServer) handleCart(ctx context.Context, w http.ResponseWriter, r *ht
 			return errs.ErrorBadRequest
 		}
 
-		validate := validator.New()
-		err = validate.Struct(req)
+		
+		err = s.validator.Struct(req)
 		if err != nil {
 			return err
 		}
@@ -265,8 +316,8 @@ func (s *APIServer) handleOrder(ctx context.Context, w http.ResponseWriter, r *h
 			return errs.ErrorBadRequest
 		}
 
-		validate := validator.New()
-		err = validate.Struct(req)
+		
+		err = s.validator.Struct(req)
 		if err != nil {
 			return err
 		}
@@ -282,32 +333,6 @@ func (s *APIServer) handleOrder(ctx context.Context, w http.ResponseWriter, r *h
 
 	return writeJSON(w, http.StatusOK, resp)
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // type for my api handlers
 type APIFunc func(ctx context.Context, w http.ResponseWriter, r *http.Request) error
@@ -329,18 +354,19 @@ func makeAPIFunc(fn APIFunc) http.HandlerFunc {
 		// max 3 seconds for a request
 		ctx, cancel := context.WithTimeout(r.Context(), time.Duration(60*time.Second))
 		ctx = context.WithValue(ctx, types.RemoteAddress, r.RemoteAddr)
+		ctx = context.WithValue(ctx, types.UserAgent, r.UserAgent())
 		defer cancel()
 		r = r.WithContext(ctx)
 
 		if err := fn(ctx, w, r); err != nil {
-
-			
 			// abhi currently mostly internal server hee dikhenge
 			writeJSON(w, http.StatusInternalServerError, APIError{Error: err.Error()})
 		}
 	}
 }
 
+
+// TODO this needs to be refactor think of authorization rules and shit 
 // reason to keep it as a method of struct so that it has neat access token maker
 func (s *APIServer) checkAuthorization(fn APIFunc) APIFunc {
 	return func(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
@@ -368,6 +394,7 @@ func (s *APIServer) checkAuthorization(fn APIFunc) APIFunc {
 			return err
 		}
 
+		// TODO why not add the authorization rules here. Check for email verification beffore anything else
 		ctx = context.WithValue(ctx, types.AuthorizationPayload, payload)
 		return fn(ctx, w, r)
 	}

@@ -14,4 +14,5 @@ var (
 	ErrorNotAuthorized       = errors.New("not authorized")
 	ErrorAmountMismatch      = errors.New("amount mismatch retry again")
 	ErrorValidationFailed    = errors.New("request validation is failed")
+	ErrorExpiredSession      = errors.New("session expired")
 )

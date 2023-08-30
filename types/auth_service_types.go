@@ -1,7 +1,19 @@
 // types for auth microservice
 package types
 
-import "time"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
+
+type contextKey string
+
+const (
+	RemoteAddress        contextKey = "remote_address"
+	UserAgent            contextKey = "user_agent"
+	AuthorizationPayload contextKey = "authorization_payload"
+)
 
 type CreateUserRequest struct {
 	Username string `json:"username" validate:"required,min=7"`
@@ -24,6 +36,23 @@ type LoginUserRequest struct {
 }
 
 type LoginUserResponse struct {
-	AccessToken string       `json:"access_token"`
-	User        UserResponse `json:"user"`
+	SessionID             uuid.UUID    `json:"session_id"`
+	AccessToken           string       `json:"access_token"`
+	AccessTokenExpiresAt  time.Time    `json:"access_token_expires_at"`
+	RefreshToken          string       `json:"refresh_token"`
+	RefreshTokenExpiresAt time.Time    `json:"refresh_token_expires_at"`
+	User                  UserResponse `json:"user"`
+}
+
+type RenewAccessTokenRequest struct {
+	RefreshToken string `json:"refresh_token" validate:"required"`
+}
+
+type RenewAccessTokenResponse struct {
+	AccessToken          string    `json:"access_token"`
+	AccessTokenExpiresAt time.Time `json:"access_token_expires_at"`
+}
+
+type VerifyEmailResponse struct {
+	IsVerified bool `json:"is_verified"`
 }

@@ -19,20 +19,26 @@ import (
 )
 
 type BookManager interface {
+	// unauthorized
 	Search(ctx context.Context, req types.SearchBooksV1Request) ([]database.SearchBooksV1Row, error)
+
+	// authorized
 	GetCart(ctx context.Context, req types.GetCartRequest) ([]database.GetCartItemsByUserIdRow, error)
 	AddToCart(ctx context.Context, req types.AddToCartRequest) (database.Cart, error)
 	DeleteCartItem(ctx context.Context, req types.DeleteCartItemRequest) error
+
 	PlaceOrder(ctx context.Context, req types.PlaceOrderRequest) (database.Order, error)
+
+	// DeactivateAccount(ctx context.Context, req types.DeactivateAccountRequest) (database.Order, error)
 }
 
 // one should add dependencies/tools here
 type bookManager struct {
-	db             Storer
+	db             database.Storer
 	razorPayClient *razorpay.Client
 }
 
-func NewBookManager(db Storer, razorPayClient *razorpay.Client) BookManager {
+func NewBookManager(db database.Storer, razorPayClient *razorpay.Client) BookManager {
 	return &bookManager{
 		db:             db,
 		razorPayClient: razorPayClient,
@@ -103,7 +109,7 @@ func (b *bookManager) DeleteCartItem(ctx context.Context, req types.DeleteCartIt
 	return b.db.DeleteCartItem(ctx, params)
 }
 
-// TODO order lines, change schema id hata doh 
+// TODO order lines, change schema id hata doh
 func (b *bookManager) PlaceOrder(ctx context.Context, req types.PlaceOrderRequest) (database.Order, error) {
 	authPayload := ctx.Value(types.AuthorizationPayload).(*token.Payload)
 	if authPayload.UserID != req.UserID {
@@ -122,8 +128,8 @@ func (b *bookManager) PlaceOrder(ctx context.Context, req types.PlaceOrderReques
 
 	// step 2: get order ID from razor pay
 	data := map[string]interface{}{
-		"amount":          actualCost*100,
-		"currency":        "INR",
+		"amount":   actualCost * 100,
+		"currency": "INR",
 	}
 
 	razorPayResp, err := b.razorPayClient.Order.Create(data, nil)
@@ -147,20 +153,6 @@ func (b *bookManager) PlaceOrder(ctx context.Context, req types.PlaceOrderReques
 
 	return resp, nil
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // helper function
 func convertToSearchString(sentence string) string {

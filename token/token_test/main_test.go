@@ -8,8 +8,11 @@ import (
 	"github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/util"
 )
 
-var testJwtMaker token.Maker
-var testPasetoMaker token.Maker
+var (
+	testJwtMaker    token.Maker
+	testPasetoMaker token.Maker
+)
+
 func TestMain(m *testing.M) {
 	var err error
 	testJwtMaker, err = token.NewJWTMaker(util.RandomString(32))
@@ -17,6 +20,7 @@ func TestMain(m *testing.M) {
 		os.Exit(1)
 	}
 
-	testPasetoMaker = token.NewPasetoMaker(util.RandomString(32))
+	testPasetoMaker= token.NewPasetoMaker(util.RandomString(32))
+
 	os.Exit(m.Run())
 }

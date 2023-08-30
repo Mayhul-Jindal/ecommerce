@@ -2,6 +2,7 @@ CREATE TABLE "Users" (
   "id" bigserial PRIMARY KEY NOT NULL,
   "username" varchar UNIQUE NOT NULL,
   "email" varchar UNIQUE NOT NULL,
+  "is_email_verified" boolean NOT NULL DEFAULT false,
   "hashed_password" varchar NOT NULL,
   "password_changed_at" timestamptz NOT NULL DEFAULT('0001-01-01 00:00:00Z'),
   "is_admin" boolean not null DEFAULT false,
@@ -10,6 +11,18 @@ CREATE TABLE "Users" (
   "is_deleted" boolean not null DEFAULT false,
   "deleted_at" timestamptz NOT NULL DEFAULT('0001-01-01 00:00:00Z'),
   "created_at" timestamptz NOT NULL DEFAULT (now())
+);
+
+CREATE TABLE "Verify_Emails" (
+  "id" bigserial PRIMARY KEY,
+  "user_id" bigserial NOT NULL,
+  "email" varchar NOT NULL,
+  "secret_code" varchar NOT NULL,
+  "is_used" boolean NOT NULL DEFAULT false,
+  "created_at" timestamptz NOT NULL DEFAULT (now()),
+  "expired_at" timestamptz NOT NULL DEFAULT (now() + interval '15 minutes'),
+
+  FOREIGN KEY ("user_id") REFERENCES "Users" ("id")
 );
 
 CREATE TABLE "Sessions" (
@@ -86,9 +99,12 @@ CREATE TABLE "Purchases" (
 
   FOREIGN KEY ("book_id") REFERENCES "Books" ("id"),
   FOREIGN KEY ("order_id") REFERENCES "Orders" ("id"),
-  FOREIGN KEY ("order_id") REFERENCES "Users" ("id"),
+  FOREIGN KEY ("user_id") REFERENCES "Users" ("id"),
   CONSTRAINT "order_lines_orderid_book_key" UNIQUE ("order_id", "book_id")
 );
 
+-- indexes
 -- TODO: Create indexes wherever possible to speed things up
 
+-- extension
+create extension fuzzystrmatch;

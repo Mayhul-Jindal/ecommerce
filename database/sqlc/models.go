@@ -37,8 +37,9 @@ type Order struct {
 	CreatedAt       time.Time `json:"created_at"`
 }
 
-type OrderLine struct {
+type Purchase struct {
 	ID        int64     `json:"id"`
+	UserID    int64     `json:"user_id"`
 	BookID    int64     `json:"book_id"`
 	OrderID   int64     `json:"order_id"`
 	CreatedAt time.Time `json:"created_at"`
@@ -73,6 +74,7 @@ type User struct {
 	ID                int64     `json:"id"`
 	Username          string    `json:"username"`
 	Email             string    `json:"email"`
+	IsEmailVerified   bool      `json:"is_email_verified"`
 	HashedPassword    string    `json:"hashed_password"`
 	PasswordChangedAt time.Time `json:"password_changed_at"`
 	IsAdmin           bool      `json:"is_admin"`
@@ -81,4 +83,14 @@ type User struct {
 	IsDeleted         bool      `json:"is_deleted"`
 	DeletedAt         time.Time `json:"deleted_at"`
 	CreatedAt         time.Time `json:"created_at"`
+}
+
+type VerifyEmail struct {
+	ID         int64     `json:"id"`
+	UserID     int64     `json:"user_id"`
+	Email      string    `json:"email"`
+	SecretCode string    `json:"secret_code"`
+	IsUsed     bool      `json:"is_used"`
+	CreatedAt  time.Time `json:"created_at"`
+	ExpiredAt  time.Time `json:"expired_at"`
 }

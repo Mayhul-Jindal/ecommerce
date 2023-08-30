@@ -45,6 +45,8 @@ I will be solving the following problem statement
 - it is crutial to check eaders jisse symetric keys aur asymteric keys wala issue na hoajye
 - you can see there are many issue with jwt that is why use paesto (it follows the best practices)
 
+
+- grpcs I dont think karne ki zaroorat hain
 ## Resources
 - To learn about [sql-injection](https://go.dev/doc/database/sql-injection)
   

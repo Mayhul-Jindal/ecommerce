@@ -7,6 +7,8 @@ package database
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createUser = `-- name: CreateUser :one
@@ -15,7 +17,7 @@ INSERT INTO "Users" (
 ) VALUES (
   $1, $2, $3
 )
-RETURNING id, username, email, hashed_password, password_changed_at, is_admin, is_active, deactivated_at, is_deleted, deleted_at, created_at
+RETURNING id, username, email, is_email_verified, hashed_password, password_changed_at, is_admin, is_active, deactivated_at, is_deleted, deleted_at, created_at
 `
 
 type CreateUserParams struct {
@@ -31,6 +33,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.ID,
 		&i.Username,
 		&i.Email,
+		&i.IsEmailVerified,
 		&i.HashedPassword,
 		&i.PasswordChangedAt,
 		&i.IsAdmin,
@@ -47,7 +50,7 @@ const deactivateUser = `-- name: DeactivateUser :one
 UPDATE "Users" 
 SET is_active = false 
 WHERE id = $1
-RETURNING id, username, email, hashed_password, password_changed_at, is_admin, is_active, deactivated_at, is_deleted, deleted_at, created_at
+RETURNING id, username, email, is_email_verified, hashed_password, password_changed_at, is_admin, is_active, deactivated_at, is_deleted, deleted_at, created_at
 `
 
 func (q *Queries) DeactivateUser(ctx context.Context, id int64) (User, error) {
@@ -57,6 +60,7 @@ func (q *Queries) DeactivateUser(ctx context.Context, id int64) (User, error) {
 		&i.ID,
 		&i.Username,
 		&i.Email,
+		&i.IsEmailVerified,
 		&i.HashedPassword,
 		&i.PasswordChangedAt,
 		&i.IsAdmin,
@@ -73,7 +77,7 @@ const deleteUser = `-- name: DeleteUser :one
 UPDATE "Users" 
 SET IsDeleted = true 
 WHERE id = $1
-RETURNING id, username, email, hashed_password, password_changed_at, is_admin, is_active, deactivated_at, is_deleted, deleted_at, created_at
+RETURNING id, username, email, is_email_verified, hashed_password, password_changed_at, is_admin, is_active, deactivated_at, is_deleted, deleted_at, created_at
 `
 
 func (q *Queries) DeleteUser(ctx context.Context, id int64) (User, error) {
@@ -83,6 +87,7 @@ func (q *Queries) DeleteUser(ctx context.Context, id int64) (User, error) {
 		&i.ID,
 		&i.Username,
 		&i.Email,
+		&i.IsEmailVerified,
 		&i.HashedPassword,
 		&i.PasswordChangedAt,
 		&i.IsAdmin,
@@ -96,7 +101,7 @@ func (q *Queries) DeleteUser(ctx context.Context, id int64) (User, error) {
 }
 
 const getUser = `-- name: GetUser :one
-select id, username, email, hashed_password, password_changed_at, is_admin, is_active, deactivated_at, is_deleted, deleted_at, created_at from "Users"
+select id, username, email, is_email_verified, hashed_password, password_changed_at, is_admin, is_active, deactivated_at, is_deleted, deleted_at, created_at from "Users"
 where id = $1 and username = $2
 limit 1
 `
@@ -113,6 +118,53 @@ func (q *Queries) GetUser(ctx context.Context, arg GetUserParams) (User, error) 
 		&i.ID,
 		&i.Username,
 		&i.Email,
+		&i.IsEmailVerified,
+		&i.HashedPassword,
+		&i.PasswordChangedAt,
+		&i.IsAdmin,
+		&i.IsActive,
+		&i.DeactivatedAt,
+		&i.IsDeleted,
+		&i.DeletedAt,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const updateUser = `-- name: UpdateUser :one
+UPDATE "Users"
+SET
+  hashed_password = COALESCE($1, hashed_password),
+  password_changed_at = COALESCE($2, password_changed_at),
+  email = COALESCE($3, email),
+  is_email_verified = COALESCE($4, is_email_verified)
+WHERE
+  id = $5
+RETURNING id, username, email, is_email_verified, hashed_password, password_changed_at, is_admin, is_active, deactivated_at, is_deleted, deleted_at, created_at
+`
+
+type UpdateUserParams struct {
+	HashedPassword    pgtype.Text        `json:"hashed_password"`
+	PasswordChangedAt pgtype.Timestamptz `json:"password_changed_at"`
+	Email             pgtype.Text        `json:"email"`
+	IsEmailVerified   pgtype.Bool        `json:"is_email_verified"`
+	ID                int64              `json:"id"`
+}
+
+func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error) {
+	row := q.db.QueryRow(ctx, updateUser,
+		arg.HashedPassword,
+		arg.PasswordChangedAt,
+		arg.Email,
+		arg.IsEmailVerified,
+		arg.ID,
+	)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.Email,
+		&i.IsEmailVerified,
 		&i.HashedPassword,
 		&i.PasswordChangedAt,
 		&i.IsAdmin,
