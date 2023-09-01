@@ -7,6 +7,8 @@ package database
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createReview = `-- name: CreateReview :one
@@ -96,19 +98,22 @@ func (q *Queries) GetReviewsByBookId(ctx context.Context, arg GetReviewsByBookId
 
 const updateReview = `-- name: UpdateReview :one
 UPDATE "Reviews"
-set "rating" = $2, "comment" = $3
-WHERE "id" = $1
+SET
+  rating = COALESCE($1, rating),
+  comment = COALESCE($2, comment)
+WHERE
+  id = $3
 RETURNING id, user_id, book_id, rating, comment, created_at
 `
 
 type UpdateReviewParams struct {
-	ID      int64  `json:"id"`
-	Rating  int32  `json:"rating"`
-	Comment string `json:"comment"`
+	Rating  pgtype.Int4 `json:"rating"`
+	Comment pgtype.Text `json:"comment"`
+	ID      int64       `json:"id"`
 }
 
 func (q *Queries) UpdateReview(ctx context.Context, arg UpdateReviewParams) (Review, error) {
-	row := q.db.QueryRow(ctx, updateReview, arg.ID, arg.Rating, arg.Comment)
+	row := q.db.QueryRow(ctx, updateReview, arg.Rating, arg.Comment, arg.ID)
 	var i Review
 	err := row.Scan(
 		&i.ID,

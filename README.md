@@ -66,12 +66,10 @@ sudo snap install sql
 ```
 
 
-BHAIIIIIIII FOCUS ON THE BIGGER PICTURE FIRST
-THEN I WILL MAKE IT BETTER 
+# TODO
 
-
-
-
-createAcount mein validation
-getaccount add constraints
-getacounts pagination, add constraints
+- [ ] create authorizaation rules
+- [ ] test bhi toh likhne hain
+- [ ] there are two getUSER migrate it one only
+- [ ] getting null in case of delete from cart
+- [ ] Better pagination support is needed

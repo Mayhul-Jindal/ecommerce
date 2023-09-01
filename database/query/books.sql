@@ -1,25 +1,28 @@
 -- name: CreateBook :one
 INSERT INTO "Books" (
-  title, author, tags_array, price, description
+  title, author, tags_array, price, description, download_link
 ) VALUES (
-  $1, $2, $3, $4, $5
+  $1, $2, $3, $4, $5, $6
 )
 RETURNING *;
 
 -- name: GetBookById :one
--- select b.id, b.title, b.author, b.price, array_agg(r.comment) as comments from "Books" b
--- join "Reviews" r on r.book_id = b.id
--- where b.id = $1
--- group by b.id, b.title, b.author, b.price;
+select title, author, price, description, download_link from "Books"
+where id = $1;
 
-
--- name: UpdateBookDesc :one
+-- name: UpdateBook :one
 UPDATE "Books"
-set "description" = $2
-WHERE "id" = $1
+SET
+  title = COALESCE(sqlc.narg(title), title),
+  author = COALESCE(sqlc.narg(author), author),
+  tags_array = COALESCE(sqlc.narg(tags_array), tags_array),
+  price = COALESCE(sqlc.narg(price), price),
+  description = COALESCE(sqlc.narg(description), description),
+  download_link = COALESCE(sqlc.narg(download_link), download_link)
+WHERE
+  id = sqlc.arg(id)
 RETURNING *;
 
--- TODO: What happens when a book is deleted ?
 -- name: DeleteBook :exec
 DELETE FROM "Books"
 WHERE id = $1;

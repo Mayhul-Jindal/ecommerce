@@ -58,7 +58,7 @@ CREATE TABLE "Reviews" (
   "id" bigserial PRIMARY KEY NOT NULL,
   "user_id" bigserial NOT NULL,
   "book_id" bigserial NOT NULL,
-  "rating" int NOT NULL,
+  "rating" int not null,
   "comment" varchar NOT NULL,
   "created_at" timestamptz NOT NULL DEFAULT (now()),
 

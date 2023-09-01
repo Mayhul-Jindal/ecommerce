@@ -7,6 +7,8 @@ INSERT INTO "Verify_Emails" (
     $1, $2, $3
 ) RETURNING *;
 
+
+-- todo test this timeout feature how is this working
 -- name: UpdateVerifyEmail :one
 UPDATE "Verify_Emails"
 SET
@@ -17,3 +19,8 @@ WHERE
     AND is_used = FALSE
     AND expired_at > now()
 RETURNING *;
+
+
+-- name: DeleteVerifyEmail :exec
+delete from "Verify_Emails"
+where user_id = $1;

@@ -9,8 +9,11 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/authService"
+	"github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/bookService"
 	database "github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/database/sqlc"
 	"github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/email"
+	gatewayservice "github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/gatewayService"
 	"github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/token"
 	"github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/util"
 	"github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/worker"
@@ -46,17 +49,17 @@ func main() {
 	emailer := email.NewGmailSender(config.EMAIL_SENDER_NAME, config.EMAIL_SENDER_ADDRESS, config.EMAIL_SENDER_PASSWORD)
 
 	// racor pay client
-	razorPayclient := razorpay.NewClient(config.RAZORPAY_KEY_ID, config.RAZORPAY_KEY_SECRET)
+	razorPayClient := razorpay.NewClient(config.RAZORPAY_KEY_ID, config.RAZORPAY_KEY_SECRET)
 
 	// worker service
 	worker := worker.NewWorker(database, emailer)
 
 	// this is the auth serive invocation
-	authService := NewAuthManager(config, tokenMaker, database, worker)
+	authService := authService.NewManager(config, tokenMaker, database, worker)
 
 	// this is the book serive invocation
-	bookService := NewBookManager(database, razorPayclient)
+	bookService := bookService.NewManager(database, razorPayClient)
 
-	server := NewAPIServer(authService, bookService, tokenMaker, validator)
+	server := gatewayservice.NewAPIServer(config.SERVER_PORT, authService, bookService, tokenMaker, validator)
 	server.Run()
 }

@@ -7,23 +7,26 @@ package database
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createBook = `-- name: CreateBook :one
 INSERT INTO "Books" (
-  title, author, tags_array, price, description
+  title, author, tags_array, price, description, download_link
 ) VALUES (
-  $1, $2, $3, $4, $5
+  $1, $2, $3, $4, $5, $6
 )
 RETURNING id, title, author, tags_array, price, description, download_link, created_at
 `
 
 type CreateBookParams struct {
-	Title       string  `json:"title"`
-	Author      string  `json:"author"`
-	TagsArray   []int32 `json:"tags_array"`
-	Price       int32   `json:"price"`
-	Description string  `json:"description"`
+	Title        string  `json:"title"`
+	Author       string  `json:"author"`
+	TagsArray    []int32 `json:"tags_array"`
+	Price        int32   `json:"price"`
+	Description  string  `json:"description"`
+	DownloadLink string  `json:"download_link"`
 }
 
 func (q *Queries) CreateBook(ctx context.Context, arg CreateBookParams) (Book, error) {
@@ -33,6 +36,7 @@ func (q *Queries) CreateBook(ctx context.Context, arg CreateBookParams) (Book, e
 		arg.TagsArray,
 		arg.Price,
 		arg.Description,
+		arg.DownloadLink,
 	)
 	var i Book
 	err := row.Scan(
@@ -53,32 +57,71 @@ DELETE FROM "Books"
 WHERE id = $1
 `
 
-// TODO: What happens when a book is deleted ?
 func (q *Queries) DeleteBook(ctx context.Context, id int64) error {
 	_, err := q.db.Exec(ctx, deleteBook, id)
 	return err
 }
 
 const getBookById = `-- name: GetBookById :one
+select title, author, price, description, download_link from "Books"
+where id = $1
+`
 
+type GetBookByIdRow struct {
+	Title        string `json:"title"`
+	Author       string `json:"author"`
+	Price        int32  `json:"price"`
+	Description  string `json:"description"`
+	DownloadLink string `json:"download_link"`
+}
 
+func (q *Queries) GetBookById(ctx context.Context, id int64) (GetBookByIdRow, error) {
+	row := q.db.QueryRow(ctx, getBookById, id)
+	var i GetBookByIdRow
+	err := row.Scan(
+		&i.Title,
+		&i.Author,
+		&i.Price,
+		&i.Description,
+		&i.DownloadLink,
+	)
+	return i, err
+}
+
+const updateBook = `-- name: UpdateBook :one
 UPDATE "Books"
-set "description" = $2
-WHERE "id" = $1
+SET
+  title = COALESCE($1, title),
+  author = COALESCE($2, author),
+  tags_array = COALESCE($3, tags_array),
+  price = COALESCE($4, price),
+  description = COALESCE($5, description),
+  download_link = COALESCE($6, download_link)
+WHERE
+  id = $7
 RETURNING id, title, author, tags_array, price, description, download_link, created_at
 `
 
-type GetBookByIdParams struct {
-	ID          int64  `json:"id"`
-	Description string `json:"description"`
+type UpdateBookParams struct {
+	Title        pgtype.Text `json:"title"`
+	Author       pgtype.Text `json:"author"`
+	TagsArray    []int32     `json:"tags_array"`
+	Price        pgtype.Int4 `json:"price"`
+	Description  pgtype.Text `json:"description"`
+	DownloadLink pgtype.Text `json:"download_link"`
+	ID           int64       `json:"id"`
 }
 
-// select b.id, b.title, b.author, b.price, array_agg(r.comment) as comments from "Books" b
-// join "Reviews" r on r.book_id = b.id
-// where b.id = $1
-// group by b.id, b.title, b.author, b.price;
-func (q *Queries) GetBookById(ctx context.Context, arg GetBookByIdParams) (Book, error) {
-	row := q.db.QueryRow(ctx, getBookById, arg.ID, arg.Description)
+func (q *Queries) UpdateBook(ctx context.Context, arg UpdateBookParams) (Book, error) {
+	row := q.db.QueryRow(ctx, updateBook,
+		arg.Title,
+		arg.Author,
+		arg.TagsArray,
+		arg.Price,
+		arg.Description,
+		arg.DownloadLink,
+		arg.ID,
+	)
 	var i Book
 	err := row.Scan(
 		&i.ID,

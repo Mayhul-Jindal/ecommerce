@@ -40,6 +40,16 @@ func (q *Queries) CreateVerifyEmail(ctx context.Context, arg CreateVerifyEmailPa
 	return i, err
 }
 
+const deleteVerifyEmail = `-- name: DeleteVerifyEmail :exec
+delete from "Verify_Emails"
+where user_id = $1
+`
+
+func (q *Queries) DeleteVerifyEmail(ctx context.Context, userID int64) error {
+	_, err := q.db.Exec(ctx, deleteVerifyEmail, userID)
+	return err
+}
+
 const updateVerifyEmail = `-- name: UpdateVerifyEmail :one
 UPDATE "Verify_Emails"
 SET
@@ -57,6 +67,7 @@ type UpdateVerifyEmailParams struct {
 	SecretCode string `json:"secret_code"`
 }
 
+// todo test this timeout feature how is this working
 func (q *Queries) UpdateVerifyEmail(ctx context.Context, arg UpdateVerifyEmailParams) (VerifyEmail, error) {
 	row := q.db.QueryRow(ctx, updateVerifyEmail, arg.ID, arg.SecretCode)
 	var i VerifyEmail

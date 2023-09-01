@@ -14,8 +14,11 @@ offset $3;
 
 -- name: UpdateReview :one
 UPDATE "Reviews"
-set "rating" = $2, "comment" = $3
-WHERE "id" = $1
+SET
+  rating = COALESCE(sqlc.narg(rating), rating),
+  comment = COALESCE(sqlc.narg(comment), comment)
+WHERE
+  id = sqlc.arg(id)
 RETURNING *;
 
 -- name: DeleteReview :exec

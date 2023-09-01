@@ -14,3 +14,7 @@ INSERT INTO "Sessions" (
 -- name: GetSession :one
 SELECT * FROM "Sessions"
 WHERE id = $1 LIMIT 1;
+
+-- name: DeleteSession :exec
+delete from "Sessions"
+where user_id = $1;

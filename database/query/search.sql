@@ -34,7 +34,7 @@ limit $2
 offset $3;
 
 
--- name: SearchBookV2 :many
+-- name: SearchBooksV2 :many
 WITH book_search_cte AS (
     SELECT
         b.id,

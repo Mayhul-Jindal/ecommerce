@@ -6,10 +6,19 @@ INSERT INTO "Orders" (
 )
 RETURNING *;
 
+-- name: GetOrderById :one
+select * from "Orders"
+where id = $1 and user_id = $2;
 
--- name: GetOrderId :one
-select id from "Orders"
-where id = $1;
+-- name: UpdateOrder :one
+UPDATE "Orders"
+set "status" = $1
+WHERE "id" = $2 and user_id = $3
+RETURNING *;
+
+-- name: DeleteOrder :exec
+delete from "Orders"
+where user_id = $1;
 
 
 

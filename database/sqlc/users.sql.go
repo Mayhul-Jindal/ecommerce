@@ -11,6 +11,31 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const checkAdmin = `-- name: CheckAdmin :one
+select id, username, email, is_email_verified, hashed_password, password_changed_at, is_admin, is_active, deactivated_at, is_deleted, deleted_at, created_at from "Users"
+where id = $1 and is_admin
+`
+
+func (q *Queries) CheckAdmin(ctx context.Context, id int64) (User, error) {
+	row := q.db.QueryRow(ctx, checkAdmin, id)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.Email,
+		&i.IsEmailVerified,
+		&i.HashedPassword,
+		&i.PasswordChangedAt,
+		&i.IsAdmin,
+		&i.IsActive,
+		&i.DeactivatedAt,
+		&i.IsDeleted,
+		&i.DeletedAt,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const createUser = `-- name: CreateUser :one
 INSERT INTO "Users" (
   username, email, hashed_password
@@ -46,58 +71,14 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 	return i, err
 }
 
-const deactivateUser = `-- name: DeactivateUser :one
-UPDATE "Users" 
-SET is_active = false 
-WHERE id = $1
-RETURNING id, username, email, is_email_verified, hashed_password, password_changed_at, is_admin, is_active, deactivated_at, is_deleted, deleted_at, created_at
+const deleteUser = `-- name: DeleteUser :exec
+delete from "Users"
+where id = $1
 `
 
-func (q *Queries) DeactivateUser(ctx context.Context, id int64) (User, error) {
-	row := q.db.QueryRow(ctx, deactivateUser, id)
-	var i User
-	err := row.Scan(
-		&i.ID,
-		&i.Username,
-		&i.Email,
-		&i.IsEmailVerified,
-		&i.HashedPassword,
-		&i.PasswordChangedAt,
-		&i.IsAdmin,
-		&i.IsActive,
-		&i.DeactivatedAt,
-		&i.IsDeleted,
-		&i.DeletedAt,
-		&i.CreatedAt,
-	)
-	return i, err
-}
-
-const deleteUser = `-- name: DeleteUser :one
-UPDATE "Users" 
-SET IsDeleted = true 
-WHERE id = $1
-RETURNING id, username, email, is_email_verified, hashed_password, password_changed_at, is_admin, is_active, deactivated_at, is_deleted, deleted_at, created_at
-`
-
-func (q *Queries) DeleteUser(ctx context.Context, id int64) (User, error) {
-	row := q.db.QueryRow(ctx, deleteUser, id)
-	var i User
-	err := row.Scan(
-		&i.ID,
-		&i.Username,
-		&i.Email,
-		&i.IsEmailVerified,
-		&i.HashedPassword,
-		&i.PasswordChangedAt,
-		&i.IsAdmin,
-		&i.IsActive,
-		&i.DeactivatedAt,
-		&i.IsDeleted,
-		&i.DeletedAt,
-		&i.CreatedAt,
-	)
-	return i, err
+func (q *Queries) DeleteUser(ctx context.Context, id int64) error {
+	_, err := q.db.Exec(ctx, deleteUser, id)
+	return err
 }
 
 const getUser = `-- name: GetUser :one
@@ -131,15 +112,45 @@ func (q *Queries) GetUser(ctx context.Context, arg GetUserParams) (User, error) 
 	return i, err
 }
 
+const getUserById = `-- name: GetUserById :one
+select id, username, email, is_email_verified, hashed_password, password_changed_at, is_admin, is_active, deactivated_at, is_deleted, deleted_at, created_at from "Users"
+where id = $1
+limit 1
+`
+
+func (q *Queries) GetUserById(ctx context.Context, id int64) (User, error) {
+	row := q.db.QueryRow(ctx, getUserById, id)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.Email,
+		&i.IsEmailVerified,
+		&i.HashedPassword,
+		&i.PasswordChangedAt,
+		&i.IsAdmin,
+		&i.IsActive,
+		&i.DeactivatedAt,
+		&i.IsDeleted,
+		&i.DeletedAt,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const updateUser = `-- name: UpdateUser :one
 UPDATE "Users"
 SET
   hashed_password = COALESCE($1, hashed_password),
   password_changed_at = COALESCE($2, password_changed_at),
   email = COALESCE($3, email),
-  is_email_verified = COALESCE($4, is_email_verified)
+  is_email_verified = COALESCE($4, is_email_verified),
+  is_active = COALESCE($5, is_active),
+  deactivated_at = COALESCE($6, deactivated_at),
+  is_deleted = COALESCE($7, is_deleted),
+  deleted_at = COALESCE($8, deleted_at)
 WHERE
-  id = $5
+  id = $9
 RETURNING id, username, email, is_email_verified, hashed_password, password_changed_at, is_admin, is_active, deactivated_at, is_deleted, deleted_at, created_at
 `
 
@@ -148,6 +159,10 @@ type UpdateUserParams struct {
 	PasswordChangedAt pgtype.Timestamptz `json:"password_changed_at"`
 	Email             pgtype.Text        `json:"email"`
 	IsEmailVerified   pgtype.Bool        `json:"is_email_verified"`
+	IsActive          pgtype.Bool        `json:"is_active"`
+	DeactivatedAt     pgtype.Timestamptz `json:"deactivated_at"`
+	IsDeleted         pgtype.Bool        `json:"is_deleted"`
+	DeletedAt         pgtype.Timestamptz `json:"deleted_at"`
 	ID                int64              `json:"id"`
 }
 
@@ -157,6 +172,10 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, e
 		arg.PasswordChangedAt,
 		arg.Email,
 		arg.IsEmailVerified,
+		arg.IsActive,
+		arg.DeactivatedAt,
+		arg.IsDeleted,
+		arg.DeletedAt,
 		arg.ID,
 	)
 	var i User

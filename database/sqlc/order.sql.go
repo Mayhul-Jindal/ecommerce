@@ -44,13 +44,63 @@ func (q *Queries) AddOrder(ctx context.Context, arg AddOrderParams) (Order, erro
 	return i, err
 }
 
-const getOrderId = `-- name: GetOrderId :one
-select id from "Orders"
-where id = $1
+const deleteOrder = `-- name: DeleteOrder :exec
+delete from "Orders"
+where user_id = $1
 `
 
-func (q *Queries) GetOrderId(ctx context.Context, id int64) (int64, error) {
-	row := q.db.QueryRow(ctx, getOrderId, id)
-	err := row.Scan(&id)
-	return id, err
+func (q *Queries) DeleteOrder(ctx context.Context, userID int64) error {
+	_, err := q.db.Exec(ctx, deleteOrder, userID)
+	return err
+}
+
+const getOrderById = `-- name: GetOrderById :one
+select id, razorpay_order_id, user_id, total_money, status, created_at from "Orders"
+where id = $1 and user_id = $2
+`
+
+type GetOrderByIdParams struct {
+	ID     int64 `json:"id"`
+	UserID int64 `json:"user_id"`
+}
+
+func (q *Queries) GetOrderById(ctx context.Context, arg GetOrderByIdParams) (Order, error) {
+	row := q.db.QueryRow(ctx, getOrderById, arg.ID, arg.UserID)
+	var i Order
+	err := row.Scan(
+		&i.ID,
+		&i.RazorpayOrderID,
+		&i.UserID,
+		&i.TotalMoney,
+		&i.Status,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const updateOrder = `-- name: UpdateOrder :one
+UPDATE "Orders"
+set "status" = $1
+WHERE "id" = $2 and user_id = $3
+RETURNING id, razorpay_order_id, user_id, total_money, status, created_at
+`
+
+type UpdateOrderParams struct {
+	Status string `json:"status"`
+	ID     int64  `json:"id"`
+	UserID int64  `json:"user_id"`
+}
+
+func (q *Queries) UpdateOrder(ctx context.Context, arg UpdateOrderParams) (Order, error) {
+	row := q.db.QueryRow(ctx, updateOrder, arg.Status, arg.ID, arg.UserID)
+	var i Order
+	err := row.Scan(
+		&i.ID,
+		&i.RazorpayOrderID,
+		&i.UserID,
+		&i.TotalMoney,
+		&i.Status,
+		&i.CreatedAt,
+	)
+	return i, err
 }
