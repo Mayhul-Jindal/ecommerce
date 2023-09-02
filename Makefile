@@ -22,15 +22,9 @@ new_migration:
 sqlc:
 	sqlc generate
 
-build:
-	@go build -o bin/book-store-microservice
-
-run: build 
-	@./bin/book-store-microservice
-
 test: 
-	@go test -v ./...
+	go test -v ./...
 
 
-.PHONY: postgres createdb dropdb migrateup migratedown sqlc build run test
+.PHONY: postgres createdb dropdb migrateup migratedown sqlc test
 	

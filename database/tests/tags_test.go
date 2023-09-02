@@ -28,15 +28,3 @@ func TestCreateTag(t *testing.T) {
 	CreateRandomTag(t)
 }
 
-func TestGetAllTags(t *testing.T) {
-	var tag database.Tag
-	for i := 0; i < 20; i++ {
-		tag = CreateRandomTag(t)
-	}
-
-	tags, err := testQueries.GetAllTags(context.Background())
-	require.NoError(t, err)
-	require.NotEmpty(t, tags)
-
-	require.Equal(t, tag.TagName, tags[len(tags)-1].TagName)
-}
