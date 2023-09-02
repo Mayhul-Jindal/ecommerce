@@ -1,4 +1,4 @@
-![image](https://github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/assets/95216160/8ae3a1d5-be82-407c-8323-81b0faf82825)# BalkanID Engineering Task
+# BalkanID Engineering Task
 
 ## Problem Statement
 Build a robust online book store to handle user authentication, authorization and access management.
