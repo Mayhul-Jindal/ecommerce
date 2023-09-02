@@ -1,11 +1,14 @@
 # BalkanID Engineering Task
 
 ## Problem Statement
-`Build a robust online book store to handle user authentication, authorization and access management.`
+Build a robust online book store to handle user authentication, authorization and access management.
 
 ## Salient Features
+Here are a list of features which I built appart from the demanded features
 
 ### Combination of Hexagonal and Onion Architecture
+I have made the backend in a microservice architecture which is highly decoupled. The is because of the use of ports and adapters throughtout my code (basically different interfaces for different jobs). And took some inspiration from the onion architecture to build my logging service completly detached from my bussiness logic
+
 ### Background Workers
 ### Soft Delete
 ### Email Verification

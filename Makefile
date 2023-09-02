@@ -22,6 +22,8 @@ sqlc:
 test: 
 	go test -v ./...
 
+run: postgres createdb migrateup
+	go run .
 
 .PHONY: postgres createdb dropdb migrateup migratedown sqlc test
 	
