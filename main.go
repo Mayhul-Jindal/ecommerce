@@ -30,7 +30,6 @@ func main() {
 		fmt.Fprintf(os.Stderr, "Unable to load config: %v\n", err)
 		os.Exit(1)
 	}
-	log.Println(1)
 	// validator
 	validator := validator.New()
 
