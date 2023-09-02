@@ -31,6 +31,11 @@ make migrateup
 make run
 ```
 
+4. Refer to postman if any issues faced while requesting
+```
+https://www.postman.com/mission-physicist-26981670/workspace/balkanid-book-store
+```
+
 ## Salient Features
 Here are a list of features which I built appart from the demanded features
 
