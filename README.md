@@ -1,4 +1,4 @@
-# BalkanID Engineering Task
+![image](https://github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/assets/95216160/8ae3a1d5-be82-407c-8323-81b0faf82825)# BalkanID Engineering Task
 
 ## Problem Statement
 Build a robust online book store to handle user authentication, authorization and access management.
@@ -35,15 +35,25 @@ make run
 Here are a list of features which I built appart from the demanded features
 
 ### Combination of Hexagonal and Onion Architecture
-I have made the backend in a microservice architecture which is highly decoupled. The is because of the use of ports and adapters throughtout my code (basically different interfaces for different jobs). And took some inspiration from the onion architecture to build my logging service completly detached from my bussiness logic. 
-![image](https://github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/assets/95216160/ad1a6ec6-d076-497b-9503-ea48ac3580d0)
-![image](https://github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/assets/95216160/2f0ba9ee-fde5-4b54-9c30-e06dd26e59d9)
+I have made the backend in a microservice style which is highly decoupled. This is because ,I used ports and adapters architecture throughtout my code (basically different interfaces for different jobs). And took some inspiration from the onion architecture to build my logging service completly detached from my bussiness logic. 
 
+[Screencast from 02-09-23 08:16:42 PM IST.webm](https://github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/assets/95216160/81555b0c-c800-4506-bfa4-a52abc393144)
+
+
+I have implemented logs with tracing which can help export the logs to fluentd for further analysis
+![image](https://github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/assets/95216160/47677e88-2ac1-4bc0-a6e2-bd2368df247f)
+
+All the errors are handled at a single place so you dont have to look here are there in the code to handle the errors
+![image](https://github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/assets/95216160/38e7745e-37e5-45d6-b94e-e60d302d4754)
 
 ### Background Workers
 I wrote the background workers from scratch for the task which should not block the user to further request my api. Like account deletion and email service. I have used semaphore to make a simple task queue for my worker. You can see the power of background workers here
 
 [Screencast from 02-09-23 07:29:20 PM IST.webm](https://github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/assets/95216160/2f64e370-73e7-4ca1-af2b-faa479bb9ba9)
+
+The semaphore implementation is below. Lokks very small but it works like a charm (basically prevents task to enter into the criticial section if the channel if full)
+![image](https://github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/assets/95216160/ad8e67c6-6114-48c8-82dd-bb285fcd6bf5)
+
 
 
 ### Soft Delete
