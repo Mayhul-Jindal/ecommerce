@@ -10,9 +10,11 @@ import (
 type contextKey string
 
 const (
-	RemoteAddress        contextKey = "remote_address"
+	RemoteAddress        contextKey = "addr"
 	UserAgent            contextKey = "user_agent"
-	AuthorizationPayload contextKey = "authorization_payload"
+	AuthorizationPayload contextKey = "auth_payload"
+	Route                contextKey = "route"
+	Method contextKey = "method"
 )
 
 type CreateUserRequest struct {
@@ -30,7 +32,7 @@ type UserResponse struct {
 }
 
 type LoginUserRequest struct {
-	UserID       int64  `json:"user_id" validate:"required,number,min=1"`
+	UserID   int64  `json:"user_id" validate:"required,number,min=1"`
 	Username string `json:"username" validate:"required,min=7"`
 	Password string `json:"password" validate:"required,min=7"`
 }
@@ -49,11 +51,13 @@ type RenewAccessTokenRequest struct {
 }
 
 type RenewAccessTokenResponse struct {
+	UserID               int64     `json:"user_id"`
 	AccessToken          string    `json:"access_token"`
 	AccessTokenExpiresAt time.Time `json:"access_token_expires_at"`
 }
 
 type VerifyEmailResponse struct {
+	UserID int64 `json:"user_id"`
 	IsVerified bool `json:"is_verified"`
 }
 
@@ -73,4 +77,9 @@ type DeleteAccountRequest struct {
 
 type DeleteAccountResponse struct {
 	Message string `json:"message"`
+}
+
+type ResendEmailRequest struct {
+	UserID   int64  `json:"user_id" validate:"required,number,min=1"`
+	Username string `json:"username" validate:"required,min=7"`
 }

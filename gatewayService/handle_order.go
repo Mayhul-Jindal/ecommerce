@@ -59,9 +59,31 @@ func (s *APIServer) handleOrder(ctx context.Context, w http.ResponseWriter, r *h
 		if err != nil {
 			return err
 		}
+
+	case "get":
+		if r.Method != "GET" {
+			return errs.ErrorMethodNotAllowed
+		}
+
+		var req types.GetPurchasesRequest
+		err = json.NewDecoder(r.Body).Decode(&req)
+		if err != nil {
+			return errs.ErrorBadRequest
+		}
+
+		err = s.validator.Struct(req)
+		if err != nil {
+			return errs.ErrorBadRequest
+		}
+
+		resp, err = s.bookSvc.GetPurchases(ctx, req)
+		if err != nil {
+			return err
+		}
+
 	default:
 		return errs.ErrorPageNotFound
 	}
 
-	return writeJSON(w, http.StatusOK, r.URL.String(), resp)
+	return writeJSON(ctx, w, http.StatusOK, resp)
 }

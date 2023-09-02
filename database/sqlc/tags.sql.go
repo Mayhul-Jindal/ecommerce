@@ -30,6 +30,16 @@ func (q *Queries) CreateTag(ctx context.Context, arg CreateTagParams) (Tag, erro
 	return i, err
 }
 
+const deleteTag = `-- name: DeleteTag :exec
+DELETE FROM "Tags"
+WHERE id = $1
+`
+
+func (q *Queries) DeleteTag(ctx context.Context, id int32) error {
+	_, err := q.db.Exec(ctx, deleteTag, id)
+	return err
+}
+
 const getAllTags = `-- name: GetAllTags :many
 select id, tag_name from "Tags"
 `
@@ -52,4 +62,23 @@ func (q *Queries) GetAllTags(ctx context.Context) ([]Tag, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateTag = `-- name: UpdateTag :one
+update "Tags" set 
+tag_name = $2 where
+id = $1
+returning id, tag_name
+`
+
+type UpdateTagParams struct {
+	ID      int32  `json:"id"`
+	TagName string `json:"tag_name"`
+}
+
+func (q *Queries) UpdateTag(ctx context.Context, arg UpdateTagParams) (Tag, error) {
+	row := q.db.QueryRow(ctx, updateTag, arg.ID, arg.TagName)
+	var i Tag
+	err := row.Scan(&i.ID, &i.TagName)
+	return i, err
 }

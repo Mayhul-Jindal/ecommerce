@@ -27,6 +27,7 @@ type Manager interface {
 	Login(ctx context.Context, req types.LoginUserRequest) (types.LoginUserResponse, error)
 	RenewAccess(ctx context.Context, req types.RenewAccessTokenRequest) (types.RenewAccessTokenResponse, error)
 	VerifyEmail(ctx context.Context, id int64, secret_code string) (types.VerifyEmailResponse, error) // time mila toh uske bhi type.request ke format mein kardena
+	ResendEmail(ctx context.Context, req types.ResendEmailRequest)
 
 	// authorized
 	DeactivateAccount(ctx context.Context, req types.DeactivateAccountRequest) (types.DeactivateAccountResponse, error)
@@ -55,6 +56,13 @@ func (a *authManager) SignUp(ctx context.Context, req types.CreateUserRequest) (
 		return types.UserResponse{}, err
 	}
 
+	user, err := a.db.GetUserByUsername(ctx, req.Username)
+	if err == nil {
+		if  time.Now().Before(user.DeletedAt.AddDate(0,0,15)) {
+			return types.UserResponse{}, errs.ErrorAccountIsDeleted
+		}
+	}
+	
 	createUserParams := database.CreateUserParams{
 		Username:       req.Username,
 		Email:          req.Email,
@@ -82,13 +90,18 @@ func (a *authManager) Login(ctx context.Context, req types.LoginUserRequest) (ty
 
 	user, err := a.db.GetUser(ctx, params)
 	if err != nil {
-		return types.LoginUserResponse{}, err
+		return types.LoginUserResponse{}, errs.ErrorNoUser
 	}
 
 	err = util.CheckPassword(req.Password, user.HashedPassword)
 	if err != nil {
 		return types.LoginUserResponse{}, errs.ErrorUnauthorized
 	}
+
+	if !user.IsActive {
+		return types.LoginUserResponse{}, errs.ErrorAccountIsDeactivated
+	}
+
 
 	accessToken, accessPayload, err := a.tokenMaker.CreateToken(
 		user.ID,
@@ -137,7 +150,7 @@ func (a *authManager) RenewAccess(ctx context.Context, req types.RenewAccessToke
 	if err != nil {
 		return types.RenewAccessTokenResponse{}, err
 	}
-
+	
 	session, err := a.db.GetSession(ctx, refreshPayload.ID)
 	if err != nil {
 		return types.RenewAccessTokenResponse{}, err
@@ -168,6 +181,7 @@ func (a *authManager) RenewAccess(ctx context.Context, req types.RenewAccessToke
 	}
 
 	resp := types.RenewAccessTokenResponse{
+		UserID: refreshPayload.UserID,
 		AccessToken:          accessToken,
 		AccessTokenExpiresAt: accessPayload.ExpiredAt,
 	}
@@ -186,13 +200,21 @@ func (a *authManager) VerifyEmail(ctx context.Context, id int64, secret_code str
 	}
 
 	resp := types.VerifyEmailResponse{
+		UserID: txResult.VerifyEmail.UserID,
 		IsVerified: txResult.User.IsEmailVerified,
 	}
+	
 	return resp, nil
 }
 
-// TODO move these down
+func (a *authManager) ResendEmail(ctx context.Context, req types.ResendEmailRequest) {
+	a.worker.EnqueueSendVerifyEmail(database.GetUserParams{
+		ID: req.UserID,
+		Username: req.Username,
+	})
+}
 
+// TODO move these down
 func (a *authManager) DeactivateAccount(ctx context.Context, req types.DeactivateAccountRequest) (types.DeactivateAccountResponse, error) {
 	authPayload := ctx.Value(types.AuthorizationPayload).(*token.Payload)
 	if authPayload.UserID != req.UserID {

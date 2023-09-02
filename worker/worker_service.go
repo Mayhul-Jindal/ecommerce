@@ -3,16 +3,17 @@ package worker
 import (
 	"context"
 	"fmt"
-	"log"
+	"os"
 	"time"
 
 	database "github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/database/sqlc"
 	"github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/email"
 	"github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/util"
+	"github.com/rs/zerolog"
 )
 
 type Worker interface {
-	EnqueueSendVerifyEmail(req database.GetUserParams) 
+	EnqueueSendVerifyEmail(req database.GetUserParams)
 	EnqueueDeleteOperation(req database.GetUserParams)
 }
 
@@ -22,18 +23,26 @@ type worker struct {
 	quitCh  chan struct{}
 	db      database.Storer
 	email   email.EmailSender
+	logger  zerolog.Logger
 }
 
 func NewWorker(db database.Storer, email email.EmailSender) Worker {
+	logger := zerolog.New(zerolog.ConsoleWriter{Out: os.Stderr, TimeFormat: time.RFC3339}).
+		Level(zerolog.TraceLevel).
+		With().
+		Timestamp().
+		Caller().
+		Logger()
+
 	return &worker{
 		// this means maximum of 20 emails can be processed at once
 		emailCh: make(chan struct{}, 20),
 		quitCh:  make(chan struct{}),
 		db:      db,
 		email:   email,
+		logger:  logger,
 	}
 }
-
 
 func (w *worker) EnqueueSendVerifyEmail(req database.GetUserParams) {
 	w.emailCh <- struct{}{}
@@ -89,23 +98,30 @@ func (w *worker) sendVerifyEmail(ctx context.Context, req database.GetUserParams
 
 	select {
 	case <-ctx.Done():
-		log.Printf("msg=timeout\ttook=%v", time.Since(start))
+		w.logger.Error().
+			Str("err", "timout").
+			Dur("took", time.Since(start)).
+			Send()
+
 		return
 
 	case <-w.quitCh:
-		log.Printf("msg=quit\ttook=%v", time.Since(start))
+		w.logger.Error().
+			Str("err", "quit").
+			Dur("took", time.Since(start)).
+			Send()
+
 		return
 
 	case msg := <-msgCh:
-		log.Printf("msg=%v\ttook=%v", msg, time.Since(start))
+		w.logger.Info().
+			Str("msg", msg).
+			Dur("took", time.Since(start)).
+			Send()
+
 		return
 	}
 }
-
-
-
-
-
 
 func (w *worker) EnqueueDeleteOperation(req database.GetUserParams) {
 	w.delCh <- struct{}{}
@@ -120,5 +136,3 @@ func (w *worker) EnqueueDeleteOperation(req database.GetUserParams) {
 
 func (w *worker) deleteOperation(tx context.Context, req database.GetUserParams) {
 }
-
-

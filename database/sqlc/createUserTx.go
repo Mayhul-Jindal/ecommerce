@@ -29,6 +29,7 @@ func (p *postgresDb) CreateUserTx(ctx context.Context, arg CreateUserTxParams) (
 			Username: result.User.Username,
 		})
 
+		
 		return nil
 	})
 

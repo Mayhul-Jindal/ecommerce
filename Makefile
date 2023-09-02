@@ -4,7 +4,7 @@ postgres:
 	docker run -d --rm -p 5432:5432 --name postgres-container -e POSTGRES_USER=admin -e POSTGRES_PASSWORD=admin postgres
 
 createdb: 
-	 docker exec -it postgres-container createdb --username=admin --owner=admin book-store
+	docker exec -it postgres-container createdb --username=admin --owner=admin book-store
 
 dropdb:
 	docker exec -it postgres-container dropdb -U admin book-store

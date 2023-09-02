@@ -13,16 +13,17 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/authService"
 	"github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/bookService"
-	errs "github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/errors"
 	"github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/token"
+	"github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/types"
 	"github.com/go-playground/validator/v10"
 	"github.com/gorilla/mux"
+	"github.com/rs/zerolog"
 )
 
 // this helps me to decouple the auth logic from book management stuff
@@ -42,6 +43,13 @@ type APIError struct {
 	Error string `json:"error"`
 }
 
+var logger zerolog.Logger = zerolog.New(zerolog.ConsoleWriter{Out: os.Stderr, TimeFormat: time.RFC3339}).
+	Level(zerolog.TraceLevel).
+	With().
+	Timestamp().
+	Caller().
+	Logger()
+
 func NewAPIServer(listenAddr string, authSvc authService.Manager, bookSvc bookService.Manager, tokenSvc token.Maker, validator *validator.Validate) *APIServer {
 	return &APIServer{
 		listenAddr: listenAddr,
@@ -55,14 +63,7 @@ func NewAPIServer(listenAddr string, authSvc authService.Manager, bookSvc bookSe
 func (s *APIServer) Run() {
 	router := mux.NewRouter()
 
-	// these are some of the global erros
-	router.NotFoundHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		writeJSON(w, http.StatusNotFound, r.URL.String(), APIError{Error: errs.ErrorPageNotFound.Error()})
-	})
-
-
 	router.HandleFunc("/users/{action}", makeAPIFunc(s.handleUsers))
-	router.HandleFunc("/users/verify_email", makeAPIFunc(s.handleVerifyEmail))
 	router.HandleFunc("/search", makeAPIFunc(s.handleSearch))
 	router.HandleFunc("/tags", makeAPIFunc(s.handleTags))
 	router.HandleFunc("/recommendations/hotselling", makeAPIFunc(s.handleHotSelling))
@@ -77,7 +78,8 @@ func (s *APIServer) Run() {
 	// router.HandleFunc("/users/deactivate", makeAPIFunc(s.checkAuthorization(s.handleDeactivateAccount)))
 	// router.HandleFunc("/users/delete", makeAPIFunc(s.checkAuthorization(s.handleDeleteAccount)))
 
-	// timeouts are set for the request
+	router.HandleFunc("/{random}", makeAPIFunc(s.handlePageNotFound))
+
 	srv := &http.Server{
 		Handler:      router,
 		Addr:         fmt.Sprintf("127.0.0.1%s", s.listenAddr),
@@ -85,15 +87,31 @@ func (s *APIServer) Run() {
 		ReadTimeout:  15 * time.Second,
 	}
 
-	log.Fatal(srv.ListenAndServe())
+	srv.ListenAndServe()
 }
 
-// helper function for writing responses
-// this also logs the responses
-func writeJSON(w http.ResponseWriter, s int, route string, v any) error {
+// centralized logging for json api gateway
+func writeJSON(ctx context.Context, w http.ResponseWriter, s int, v any) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(s)
 
-	log.Printf("status:%v route:%v", s, route)
+	if apiErr, ok := v.(APIError); ok {
+		logger.Error().
+			Int("status", s).
+			Str("route", ctx.Value(types.Route).(string)).
+			Str("method", ctx.Value(types.Method).(string)).
+			Str("addr", ctx.Value(types.RemoteAddress).(string)).
+			Str("err", apiErr.Error).
+			Send()
+			
+	} else {
+		logger.Info().
+			Int("status", s).
+			Str("route", ctx.Value(types.Route).(string)).
+			Str("method", ctx.Value(types.Method).(string)).
+			Str("addr", ctx.Value(types.RemoteAddress).(string)).
+			Send()
+	}
+
 	return json.NewEncoder(w).Encode(v)
 }

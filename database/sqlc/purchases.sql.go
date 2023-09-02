@@ -78,15 +78,7 @@ with cte as (
 )
 select b.id, title, author, tags_array, price, description, download_link, b.created_at, cte.id, user_id, book_id, order_id, cte.created_at from "Books" b
 join cte on cte.book_id = b.id
-limit $2
-offset $3
 `
-
-type GetPurchasedBooksParams struct {
-	UserID int64 `json:"user_id"`
-	Limit  int32 `json:"limit"`
-	Offset int32 `json:"offset"`
-}
 
 type GetPurchasedBooksRow struct {
 	ID           int64     `json:"id"`
@@ -105,8 +97,8 @@ type GetPurchasedBooksRow struct {
 }
 
 // todo this is to get bought books at a single place
-func (q *Queries) GetPurchasedBooks(ctx context.Context, arg GetPurchasedBooksParams) ([]GetPurchasedBooksRow, error) {
-	rows, err := q.db.Query(ctx, getPurchasedBooks, arg.UserID, arg.Limit, arg.Offset)
+func (q *Queries) GetPurchasedBooks(ctx context.Context, userID int64) ([]GetPurchasedBooksRow, error) {
+	rows, err := q.db.Query(ctx, getPurchasedBooks, userID)
 	if err != nil {
 		return nil, err
 	}

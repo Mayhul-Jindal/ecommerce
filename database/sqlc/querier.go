@@ -15,6 +15,7 @@ type Querier interface {
 	AddToCart(ctx context.Context, arg AddToCartParams) (Cart, error)
 	CheckAdmin(ctx context.Context, id int64) (User, error)
 	CheckBookPurchased(ctx context.Context, arg CheckBookPurchasedParams) (Purchase, error)
+	CheckEmailVerified(ctx context.Context, id int64) (User, error)
 	CreateBook(ctx context.Context, arg CreateBookParams) (Book, error)
 	CreatePurchase(ctx context.Context, arg CreatePurchaseParams) (Purchase, error)
 	CreateReview(ctx context.Context, arg CreateReviewParams) (Review, error)
@@ -28,6 +29,13 @@ type Querier interface {
 	DeletePurchase(ctx context.Context, userID int64) error
 	DeleteReview(ctx context.Context, id int64) error
 	DeleteSession(ctx context.Context, userID int64) error
+	DeleteTag(ctx context.Context, id int32) error
+	// -- name: CheckUserDeactivated :one
+	// select * from "Users"
+	// where id = $1 and is_active;
+	// -- name: CheckUserDeleted :one
+	// select * from "Users"
+	// where id = $1 and is_deleted;
 	DeleteUser(ctx context.Context, id int64) error
 	DeleteVerifyEmail(ctx context.Context, userID int64) error
 	GetAllTags(ctx context.Context) ([]Tag, error)
@@ -36,19 +44,21 @@ type Querier interface {
 	GetHotSellingBooks(ctx context.Context, arg GetHotSellingBooksParams) ([]GetHotSellingBooksRow, error)
 	GetOrderById(ctx context.Context, arg GetOrderByIdParams) (Order, error)
 	// todo this is to get bought books at a single place
-	GetPurchasedBooks(ctx context.Context, arg GetPurchasedBooksParams) ([]GetPurchasedBooksRow, error)
+	GetPurchasedBooks(ctx context.Context, userID int64) ([]GetPurchasedBooksRow, error)
 	GetReviewsByBookId(ctx context.Context, arg GetReviewsByBookIdParams) ([]Review, error)
 	GetSession(ctx context.Context, id uuid.UUID) (Session, error)
 	GetTotalCartAmountById(ctx context.Context, userID int64) (int64, error)
 	GetUser(ctx context.Context, arg GetUserParams) (User, error)
 	GetUserById(ctx context.Context, id int64) (User, error)
-	GetUserRecommendations(ctx context.Context, arg GetUserRecommendationsParams) ([]GetUserRecommendationsRow, error)
+	GetUserByUsername(ctx context.Context, username string) (User, error)
+	GetUserRecommendations(ctx context.Context, arg GetUserRecommendationsParams) ([][]byte, error)
 	// TODO fuzzy searching add karni hain isme fkin
 	SearchBooksV1(ctx context.Context, arg SearchBooksV1Params) ([]SearchBooksV1Row, error)
 	SearchBooksV2(ctx context.Context, arg SearchBooksV2Params) ([]SearchBooksV2Row, error)
 	UpdateBook(ctx context.Context, arg UpdateBookParams) (Book, error)
 	UpdateOrder(ctx context.Context, arg UpdateOrderParams) (Order, error)
 	UpdateReview(ctx context.Context, arg UpdateReviewParams) (Review, error)
+	UpdateTag(ctx context.Context, arg UpdateTagParams) (Tag, error)
 	UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error)
 	// todo test this timeout feature how is this working
 	UpdateVerifyEmail(ctx context.Context, arg UpdateVerifyEmailParams) (VerifyEmail, error)

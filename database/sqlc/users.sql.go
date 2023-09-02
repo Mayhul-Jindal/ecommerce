@@ -36,6 +36,31 @@ func (q *Queries) CheckAdmin(ctx context.Context, id int64) (User, error) {
 	return i, err
 }
 
+const checkEmailVerified = `-- name: CheckEmailVerified :one
+select id, username, email, is_email_verified, hashed_password, password_changed_at, is_admin, is_active, deactivated_at, is_deleted, deleted_at, created_at from "Users"
+where id = $1 and is_email_verified
+`
+
+func (q *Queries) CheckEmailVerified(ctx context.Context, id int64) (User, error) {
+	row := q.db.QueryRow(ctx, checkEmailVerified, id)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.Email,
+		&i.IsEmailVerified,
+		&i.HashedPassword,
+		&i.PasswordChangedAt,
+		&i.IsAdmin,
+		&i.IsActive,
+		&i.DeactivatedAt,
+		&i.IsDeleted,
+		&i.DeletedAt,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const createUser = `-- name: CreateUser :one
 INSERT INTO "Users" (
   username, email, hashed_password
@@ -72,10 +97,19 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 }
 
 const deleteUser = `-- name: DeleteUser :exec
+
+
+
 delete from "Users"
 where id = $1
 `
 
+// -- name: CheckUserDeactivated :one
+// select * from "Users"
+// where id = $1 and is_active;
+// -- name: CheckUserDeleted :one
+// select * from "Users"
+// where id = $1 and is_deleted;
 func (q *Queries) DeleteUser(ctx context.Context, id int64) error {
 	_, err := q.db.Exec(ctx, deleteUser, id)
 	return err
@@ -83,7 +117,7 @@ func (q *Queries) DeleteUser(ctx context.Context, id int64) error {
 
 const getUser = `-- name: GetUser :one
 select id, username, email, is_email_verified, hashed_password, password_changed_at, is_admin, is_active, deactivated_at, is_deleted, deleted_at, created_at from "Users"
-where id = $1 and username = $2
+where id = $1 and username = $2 and not is_deleted
 limit 1
 `
 
@@ -120,6 +154,32 @@ limit 1
 
 func (q *Queries) GetUserById(ctx context.Context, id int64) (User, error) {
 	row := q.db.QueryRow(ctx, getUserById, id)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.Email,
+		&i.IsEmailVerified,
+		&i.HashedPassword,
+		&i.PasswordChangedAt,
+		&i.IsAdmin,
+		&i.IsActive,
+		&i.DeactivatedAt,
+		&i.IsDeleted,
+		&i.DeletedAt,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const getUserByUsername = `-- name: GetUserByUsername :one
+select id, username, email, is_email_verified, hashed_password, password_changed_at, is_admin, is_active, deactivated_at, is_deleted, deleted_at, created_at from "Users"
+where username = $1
+limit 1
+`
+
+func (q *Queries) GetUserByUsername(ctx context.Context, username string) (User, error) {
+	row := q.db.QueryRow(ctx, getUserByUsername, username)
 	var i User
 	err := row.Scan(
 		&i.ID,

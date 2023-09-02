@@ -107,5 +107,5 @@ func (s *APIServer) handleReviews(ctx context.Context, w http.ResponseWriter, r 
 		return errs.ErrorPageNotFound
 	}
 
-	return writeJSON(w, http.StatusOK, r.URL.String(), resp)
+	return writeJSON(ctx, w, http.StatusOK, resp)
 }

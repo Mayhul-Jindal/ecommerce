@@ -7,6 +7,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/authService"
@@ -23,14 +24,14 @@ import (
 )
 
 func main() {
-	// config tool
+	// config
 	config, err := util.LoadConfig(".")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to load config: %v\n", err)
 		os.Exit(1)
 	}
-
-	// validator tool
+	log.Println(1)
+	// validator
 	validator := validator.New()
 
 	// database 
@@ -42,7 +43,7 @@ func main() {
 	defer dbPool.Close()
 	database := database.NewPostgresStore(dbPool)
 
-	// token maker
+	// tokenMaker
 	tokenMaker := token.NewPasetoMaker(config.TOKEN_SYMMETRIC_KEY)
 
 	// emailer
@@ -54,12 +55,17 @@ func main() {
 	// worker service
 	worker := worker.NewWorker(database, emailer)
 
-	// this is the auth serive invocation
-	authService := authService.NewManager(config, tokenMaker, database, worker)
+	// auth service with logger attached (onion architecture)
+	authService := authService.NewLoggingService(
+		authService.NewManager(config, tokenMaker, database, worker),
+	)
+	
+	// book service with logger attached (onion architecture)
+	bookService :=  bookService.NewLoggingService(
+		bookService.NewManager(database, razorPayClient),
+	)
 
-	// this is the book serive invocation
-	bookService := bookService.NewManager(database, razorPayClient)
-
+	// json gateway service
 	server := gatewayservice.NewAPIServer(config.SERVER_PORT, authService, bookService, tokenMaker, validator)
 	server.Run()
 }

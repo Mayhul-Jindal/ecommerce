@@ -32,5 +32,5 @@ func (s *APIServer) handleSearch(ctx context.Context, w http.ResponseWriter, r *
 		return err
 	}
 
-	return writeJSON(w, http.StatusOK, r.URL.String(), resp)
+	return writeJSON(ctx, w, http.StatusOK, resp)
 }

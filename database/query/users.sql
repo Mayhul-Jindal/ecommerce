@@ -8,8 +8,14 @@ RETURNING *;
 
 -- name: GetUser :one
 select * from "Users"
-where id = $1 and username = $2
+where id = $1 and username = $2 and not is_deleted
 limit 1;
+
+-- name: GetUserByUsername :one
+select * from "Users"
+where username = $1
+limit 1;
+
 
 -- name: GetUserById :one
 select * from "Users"
@@ -35,6 +41,19 @@ RETURNING *;
 -- name: CheckAdmin :one
 select * from "Users"
 where id = $1 and is_admin;
+
+-- name: CheckEmailVerified :one
+select * from "Users"
+where id = $1 and is_email_verified;
+
+-- -- name: CheckUserDeactivated :one
+-- select * from "Users"
+-- where id = $1 and is_active;
+
+-- -- name: CheckUserDeleted :one
+-- select * from "Users" 
+-- where id = $1 and is_deleted;
+
 
 -- name: DeleteUser :exec
 delete from "Users"

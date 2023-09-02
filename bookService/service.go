@@ -29,20 +29,18 @@ type Manager interface {
 
 	// recommendations
 	GetHotSelling(ctx context.Context, req types.GetHotSellingRequest) ([]database.GetHotSellingBooksRow, error)
-	GetPersonalRecommendations(ctx context.Context, req types.GetPersonalRecommendationsRequest) ([]database.GetUserRecommendationsRow, error)
+	GetPersonalRecommendations(ctx context.Context, req types.GetPersonalRecommendationsRequest) ([]database.SearchBooksV2Row, error)
 
 	// books
 	GetBook(ctx context.Context, req types.GetBookRequest) (database.GetBookByIdRow, error)
 	AddBook(ctx context.Context, req types.AddBookRequest) (database.Book, error)
 	UpdateBook(ctx context.Context, req types.UpdateBookRequest) (database.Book, error)
-	// todo Delete operation is bit tricky. one has to go for transactions
-	// DeleteBook(ctx context.Context, req types.DeleteBookRequest) (error)
 
 	// tags
 	GetAllTags(ctx context.Context) ([]database.Tag, error)
-	// CreateTags (ctx context.Context, req types.PlaceOrderRequest) (database.Order, error)
-	// UpdateTags (ctx context.Context, req types.PlaceOrderRequest) (database.Order, error)
-	// DeleteTags (ctx context.Context, req types.PlaceOrderRequest) (database.Order, error)
+	CreateTag(ctx context.Context, req types.CreateTagRequest) (database.Tag, error)
+	UpdateTag(ctx context.Context, req types.UpdateTagRequest) (database.Tag, error)
+	DeleteTag(ctx context.Context, req types.DeleteTagRequest) (error)
 
 	// cart
 	GetCart(ctx context.Context, req types.GetCartRequest) ([]database.GetCartItemsByUserIdRow, error)
@@ -52,6 +50,7 @@ type Manager interface {
 	// place order
 	PlaceOrder(ctx context.Context, req types.PlaceOrderRequest) (database.Order, error)
 	VerifyOrder(ctx context.Context, req types.VerifyOrderRequest) (database.UpdateOrderTxResult, error)
+	GetPurchases(ctx context.Context, req types.GetPurchasesRequest) ([]database.GetPurchasedBooksRow, error)
 
 	// reviews
 	GetReviews(ctx context.Context, req types.GetReviewsRequest) ([]database.Review, error)
@@ -89,11 +88,9 @@ func (b *bookManager) Search(ctx context.Context, req types.SearchBooksV1Request
 	return resp, nil
 }
 
-
-
 func (b *bookManager) GetHotSelling(ctx context.Context, req types.GetHotSellingRequest) ([]database.GetHotSellingBooksRow, error) {
 	resp, err := b.db.GetHotSellingBooks(ctx, database.GetHotSellingBooksParams{
-		Limit: req.Limit,
+		Limit:  req.Limit,
 		Offset: req.Offset,
 	})
 	if err != nil {
@@ -103,27 +100,37 @@ func (b *bookManager) GetHotSelling(ctx context.Context, req types.GetHotSelling
 	return resp, nil
 }
 
-
-func (b *bookManager) GetPersonalRecommendations(ctx context.Context, req types.GetPersonalRecommendationsRequest) ([]database.GetUserRecommendationsRow, error) {
+func (b *bookManager) GetPersonalRecommendations(ctx context.Context, req types.GetPersonalRecommendationsRequest) ([]database.SearchBooksV2Row, error) {
 	authPayload := ctx.Value(types.AuthorizationPayload).(*token.Payload)
 	if authPayload.UserID != req.UserID {
-		return []database.GetUserRecommendationsRow{}, errs.ErrorNotAuthorized
+		return nil, errs.ErrorNotAuthorized
 	}
 
 	resp, err := b.db.GetUserRecommendations(ctx, database.GetUserRecommendationsParams{
-		UserID: authPayload.UserID,
+		UserID:  authPayload.UserID,
+		OrderID: req.OrderID,
 	})
 	if err != nil {
-		return []database.GetUserRecommendationsRow{}, err
+		return nil, err
 	}
 
-	return resp, nil
+	var str string
+	for _, b := range resp {
+		str += string(b) + " "
+	}
+
+	log.Println(str)
+	recom, err := b.db.SearchBooksV2(ctx, database.SearchBooksV2Params{
+		WebsearchToTsquery: convertToSearchString(string(str)),
+		Limit: req.Limit,
+		Offset: req.Offset,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return recom, nil
 }
-
-
-
-
-
 
 // authorized
 func (b *bookManager) GetBook(ctx context.Context, req types.GetBookRequest) (database.GetBookByIdRow, error) {
@@ -239,6 +246,74 @@ func (b *bookManager) GetAllTags(ctx context.Context) ([]database.Tag, error) {
 	return resp, nil
 }
 
+
+func (b *bookManager) CreateTag(ctx context.Context, req types.CreateTagRequest) (database.Tag, error) {
+	authPayload := ctx.Value(types.AuthorizationPayload).(*token.Payload)
+	if authPayload.UserID != req.UserID {
+		return database.Tag{}, errs.ErrorNotAuthorized
+	}
+
+	_, err := b.db.CheckAdmin(ctx, authPayload.UserID)
+	if err != nil {
+		return database.Tag{}, errs.ErrorNotAuthorized
+	}
+
+	tag, err := b.db.CreateTag(ctx, database.CreateTagParams{
+		ID: req.TagID,
+		TagName: req.TagName,
+	})
+	if err != nil {
+		return database.Tag{}, err
+	}
+
+	return tag, nil
+}
+
+func (b *bookManager) UpdateTag(ctx context.Context, req types.UpdateTagRequest) (database.Tag, error) {
+	authPayload := ctx.Value(types.AuthorizationPayload).(*token.Payload)
+	if authPayload.UserID != req.UserID {
+		return database.Tag{}, errs.ErrorNotAuthorized
+	}
+
+	_, err := b.db.CheckAdmin(ctx, authPayload.UserID)
+	if err != nil {
+		return database.Tag{}, errs.ErrorNotAuthorized
+	}
+
+	tag, err := b.db.UpdateTag(ctx, database.UpdateTagParams{
+		ID: req.TagID,
+		TagName: req.TagName,
+	})
+	if err != nil {
+		return database.Tag{}, err
+	}
+
+	return tag, nil
+}
+
+func (b *bookManager) DeleteTag(ctx context.Context, req types.DeleteTagRequest) (error) {
+	authPayload := ctx.Value(types.AuthorizationPayload).(*token.Payload)
+	if authPayload.UserID != req.UserID {
+		return errs.ErrorNotAuthorized
+	}
+
+	_, err := b.db.CheckAdmin(ctx, authPayload.UserID)
+	if err != nil {
+		return errs.ErrorNotAuthorized
+	}
+
+	err = b.db.DeleteTag(ctx, req.TagID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+
+
+
+
 func (b *bookManager) GetCart(ctx context.Context, req types.GetCartRequest) ([]database.GetCartItemsByUserIdRow, error) {
 	authPayload := ctx.Value(types.AuthorizationPayload).(*token.Payload)
 	if authPayload.UserID != req.UserID {
@@ -258,6 +333,14 @@ func (b *bookManager) AddToCart(ctx context.Context, req types.AddToCartRequest)
 	authPayload := ctx.Value(types.AuthorizationPayload).(*token.Payload)
 	if authPayload.UserID != req.UserID {
 		return database.Cart{}, errs.ErrorNotAuthorized
+	}
+
+	_, err := b.db.CheckBookPurchased(ctx, database.CheckBookPurchasedParams{
+		UserID: req.UserID,
+		BookID: req.BookID,
+	})
+	if err == nil {
+		return database.Cart{}, errs.ErrorBookAlreadyBought
 	}
 
 	params := database.AddToCartParams{
@@ -292,6 +375,12 @@ func (b *bookManager) PlaceOrder(ctx context.Context, req types.PlaceOrderReques
 	authPayload := ctx.Value(types.AuthorizationPayload).(*token.Payload)
 	if authPayload.UserID != req.UserID {
 		return database.Order{}, errs.ErrorNotAuthorized
+	}
+
+	// check if email is verified or not
+	_, err := b.db.CheckEmailVerified(ctx, authPayload.UserID)
+	if err != nil {
+		return database.Order{}, errs.ErrorEmailNotVerified
 	}
 
 	// step 1: check amount before prceeding
@@ -369,10 +458,25 @@ func (b *bookManager) VerifyOrder(ctx context.Context, req types.VerifyOrderRequ
 	return resp, nil
 }
 
+func (b *bookManager) GetPurchases(ctx context.Context, req types.GetPurchasesRequest) ([]database.GetPurchasedBooksRow, error) {
+	authPayload := ctx.Value(types.AuthorizationPayload).(*token.Payload)
+	if authPayload.UserID != req.UserID {
+		return []database.GetPurchasedBooksRow{}, errs.ErrorNotAuthorized
+	}
+
+	resp, err := b.db.GetPurchasedBooks(ctx, authPayload.UserID)
+	if err != nil {
+		return []database.GetPurchasedBooksRow{}, err
+	}
+
+	return resp, nil
+}
 
 func (b *bookManager) GetReviews(ctx context.Context, req types.GetReviewsRequest) ([]database.Review, error) {
 	reviews, err := b.db.GetReviewsByBookId(ctx, database.GetReviewsByBookIdParams{
 		BookID: req.BookID,
+		Limit:  req.Limit,
+		Offset: req.Offset,
 	})
 	if err != nil {
 		return []database.Review{}, err
@@ -388,9 +492,9 @@ func (b *bookManager) AddReview(ctx context.Context, req types.AddReviewRequest)
 	}
 
 	review, err := b.db.CreateReview(ctx, database.CreateReviewParams{
-		UserID: authPayload.UserID,
-		BookID: req.BookID,
-		Rating: req.Rating,
+		UserID:  authPayload.UserID,
+		BookID:  req.BookID,
+		Rating:  req.Rating,
 		Comment: req.Comment,
 	})
 	if err != nil {
@@ -407,45 +511,36 @@ func (b *bookManager) UpdateReview(ctx context.Context, req types.UpdateReviewRe
 	}
 
 	review, err := b.db.UpdateReview(ctx, database.UpdateReviewParams{
-		ID: req.ID,
+		ID: req.ReviewID,
 		Rating: pgtype.Int4{
 			Int32: req.Rating,
 			Valid: true,
 		},
 		Comment: pgtype.Text{
 			String: req.Comment,
-			Valid: true,
+			Valid:  true,
 		},
 	})
 	if err != nil {
 		return database.Review{}, err
 	}
-	
+
 	return review, nil
 }
 
 func (b *bookManager) DeleteReview(ctx context.Context, req types.DeleteReviewRequest) error {
-	err := b.db.DeleteReview(ctx, req.ID)
+	authPayload := ctx.Value(types.AuthorizationPayload).(*token.Payload)
+	if authPayload.UserID != req.UserID {
+		return errs.ErrorNotAuthorized
+	}
+
+	err := b.db.DeleteReview(ctx, req.ReviewtID)
 	if err != nil {
 		return err
 	}
 
 	return nil
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // helper function
 func convertToSearchString(sentence string) string {

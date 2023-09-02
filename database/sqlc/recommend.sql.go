@@ -10,16 +10,12 @@ import (
 )
 
 const getHotSellingBooks = `-- name: GetHotSellingBooks :many
-with cte as 
-(
-    select book_id from "Purchases"
-    group by book_id
-    order by created_at desc
-    limit $1
-    offset $2
-)
-select title, author, price from "Books" b
-JOIN cte ON b.id = cte.book_id
+SELECT b.title, b.author, b.price FROM "Books" b
+JOIN "Purchases" p ON b.id = p.book_id
+GROUP BY p.book_id, b.title, b.author, b.price
+ORDER BY COUNT(*) DESC
+LIMIT $1
+OFFSET $2
 `
 
 type GetHotSellingBooksParams struct {
@@ -54,49 +50,34 @@ func (q *Queries) GetHotSellingBooks(ctx context.Context, arg GetHotSellingBooks
 }
 
 const getUserRecommendations = `-- name: GetUserRecommendations :many
-with cte as 
-(
-    select user_id, book_id from "Purchases" p
-    where p.user_id = $1 and p.order_id = $2
+with cte as (
+	SELECT string_agg(t.tag_name, ' ') as all_tags FROM "Purchases" p
+	JOIN "Books" b ON p.book_id = b.id
+	LEFT JOIN "Tags" t ON t.id = ANY(b.tags_array)
+	WHERE p.user_id = $1 AND p.order_id = $2
+	GROUP BY p.user_id, t.tag_name
 )
-select cte.user_id, string_agg(t.tag_name, ' ') from "Books" b
-join cte on cte.book_id = b.id
-left join "Tags" t on t.id = ANY(b.tag_array)
-group by cte.user_id, t.tag_name
-limit $3
-offset $4
+select string_agg(all_tags, ' ') from cte
 `
 
 type GetUserRecommendationsParams struct {
 	UserID  int64 `json:"user_id"`
 	OrderID int64 `json:"order_id"`
-	Limit   int32 `json:"limit"`
-	Offset  int32 `json:"offset"`
 }
 
-type GetUserRecommendationsRow struct {
-	UserID    int64  `json:"user_id"`
-	StringAgg []byte `json:"string_agg"`
-}
-
-func (q *Queries) GetUserRecommendations(ctx context.Context, arg GetUserRecommendationsParams) ([]GetUserRecommendationsRow, error) {
-	rows, err := q.db.Query(ctx, getUserRecommendations,
-		arg.UserID,
-		arg.OrderID,
-		arg.Limit,
-		arg.Offset,
-	)
+func (q *Queries) GetUserRecommendations(ctx context.Context, arg GetUserRecommendationsParams) ([][]byte, error) {
+	rows, err := q.db.Query(ctx, getUserRecommendations, arg.UserID, arg.OrderID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []GetUserRecommendationsRow{}
+	items := [][]byte{}
 	for rows.Next() {
-		var i GetUserRecommendationsRow
-		if err := rows.Scan(&i.UserID, &i.StringAgg); err != nil {
+		var string_agg []byte
+		if err := rows.Scan(&string_agg); err != nil {
 			return nil, err
 		}
-		items = append(items, i)
+		items = append(items, string_agg)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err

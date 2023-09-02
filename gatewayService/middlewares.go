@@ -14,34 +14,37 @@ func makeAPIFunc(fn APIFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := context.WithValue(r.Context(), types.RemoteAddress, r.RemoteAddr)
 		ctx = context.WithValue(ctx, types.UserAgent, r.UserAgent())
-	
+		ctx = context.WithValue(ctx, types.Route, r.URL.String())
+		ctx = context.WithValue(ctx, types.Method, r.Method)
+
 		err := fn(ctx, w, r)
 		if err == nil {
 			return
 		}
+
 		switch err {
 		case errs.ErrorMethodNotAllowed:
-			writeJSON(w, http.StatusMethodNotAllowed, r.URL.String(), APIError{Error: err.Error()})
+			writeJSON(ctx, w, http.StatusMethodNotAllowed, APIError{Error: err.Error()})
 
 		case errs.ErrorBadRequest:
-			writeJSON(w, http.StatusBadRequest, r.URL.String(), APIError{Error: err.Error()})
+			writeJSON(ctx, w, http.StatusBadRequest, APIError{Error: err.Error()})
 
-		case errs.ErrorInvalidToken, errs.ErrorExpiredToken, errs.ErrorUnauthorized, errs.ErrorNoAuthHeader, errs.ErrorInvalidAuthHeader, errs.ErrorUnsupportedAuthType, errs.ErrorNotAuthorized, errs.ErrorExpiredSession:
-			writeJSON(w, http.StatusUnauthorized, r.URL.String(), APIError{Error: err.Error()})
+		case errs.ErrorInvalidToken, errs.ErrorExpiredToken, errs.ErrorUnauthorized, errs.ErrorNoAuthHeader, errs.ErrorInvalidAuthHeader, errs.ErrorUnsupportedAuthType, errs.ErrorNotAuthorized, errs.ErrorExpiredSession, errs.ErrorEmailNotVerified:
+			writeJSON(ctx, w, http.StatusUnauthorized, APIError{Error: err.Error()})
 
 		case errs.ErrorAmountMismatch, errs.ErrorValidationFailed, errs.ErrorPayementNotVerified, errs.ErrorFileLimitExceeded:
-			writeJSON(w, http.StatusBadRequest, r.URL.String(), APIError{Error: err.Error()})
+			writeJSON(ctx, w, http.StatusBadRequest, APIError{Error: err.Error()})
 
-		case errs.ErrorPageNotFound, errs.ErrorRecordNotFound:
-			writeJSON(w, http.StatusNotFound, r.URL.String(), APIError{Error: err.Error()})
+		case errs.ErrorPageNotFound, errs.ErrorRecordNotFound, errs.ErrorEmailNotVerified:
+			writeJSON(ctx, w, http.StatusNotFound, APIError{Error: err.Error()})
 
 		default:
 			if errs.ErrorCode(err) == errs.UniqueViolation || errs.ErrorCode(err) == errs.ForeignKeyViolation {
-				writeJSON(w, http.StatusForbidden, r.URL.String(), APIError{Error: errs.ErrorUniqueOrForeignKeyViolation.Error()})
+				writeJSON(ctx, w, http.StatusForbidden, APIError{Error: errs.ErrorUniqueOrForeignKeyViolation.Error()})
 				return
 			}
 
-			writeJSON(w, http.StatusInternalServerError, r.URL.String(), APIError{Error: err.Error()})
+			writeJSON(ctx, w, http.StatusInternalServerError, APIError{Error: err.Error()})
 		}
 	}
 }

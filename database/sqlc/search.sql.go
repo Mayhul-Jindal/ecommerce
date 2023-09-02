@@ -141,7 +141,7 @@ type SearchBooksV2Row struct {
 	Title                 string      `json:"title"`
 	Author                string      `json:"author"`
 	TagsArray             interface{} `json:"tags_array"`
-	Ratings               interface{}     `json:"ratings"`
+	Ratings               float64     `json:"ratings"`
 	Description           string      `json:"description"`
 	Ranks                 float32     `json:"ranks"`
 	TagsDifference        int32       `json:"tags_difference"`

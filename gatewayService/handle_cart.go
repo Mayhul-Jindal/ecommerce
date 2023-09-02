@@ -81,10 +81,9 @@ func (s *APIServer) handleCart(ctx context.Context, w http.ResponseWriter, r *ht
 			return err
 		}
 
-		resp = map[string]string{"mesage": "ok"}
 	default:
 		return errs.ErrorPageNotFound
 	}
 
-	return writeJSON(w, http.StatusOK, r.URL.String(), resp)
+	return writeJSON(ctx, w, http.StatusOK, resp)
 }

@@ -18,9 +18,7 @@ with cte as (
     where user_id = $1
 )
 select * from "Books" b
-join cte on cte.book_id = b.id
-limit $2
-offset $3;
+join cte on cte.book_id = b.id;
 
 -- name: DeletePurchase :exec
 DELETE FROM "Purchases"

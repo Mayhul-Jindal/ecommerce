@@ -65,8 +65,14 @@ type VerifyOrderRequest struct {
 	RazorpaySignature string `json:"razorpay_signature" validate:"required"`
 }
 
+type GetPurchasesRequest struct {
+	UserID int64 `json:"user_id" validate:"required,number,min=1"`
+}
+
 type GetReviewsRequest struct {
 	BookID int64 `json:"book_id" validate:"required,number,min=1"`
+	Limit  int32 `json:"limit" validate:"required,min=1,max=20"`
+	Offset int32 `json:"offset" validate:"min=0"`
 }
 
 type AddReviewRequest struct {
@@ -77,21 +83,43 @@ type AddReviewRequest struct {
 }
 
 type UpdateReviewRequest struct {
-	UserID  int64  `json:"user_id" validate:"required,number,min=1"`
-	ID      int64  `json:"id" validate:"required,number,min=1"`
-	Rating  int32  `json:"rating" valideate:"required,number,min=1"`
-	Comment string `json:"comment" valideate:"required,min=5"`
+	UserID   int64  `json:"user_id" validate:"required,number,min=1"`
+	ReviewID int64  `json:"review_id" validate:"required,number,min=1"`
+	Rating   int32  `json:"rating" valideate:"required,number,min=1"`
+	Comment  string `json:"comment" valideate:"required,min=5"`
 }
 
 type DeleteReviewRequest struct {
-	ID int64 `json:"id" validate:"required,number,min=1"`
+	UserID    int64 `json:"user_id" validate:"required,number,min=1"`
+	ReviewtID int64 `json:"review_id" validate:"required,number,min=1"`
 }
 
 type GetHotSellingRequest struct {
-	Limit  int32 `json:"limit" validate:"required,number,min=1"`
-	Offset int32 `json:"offset" validate:"required,number,min=0"`
+	Limit  int32 `json:"limit" validate:"required,min=1,max=20"`
+	Offset int32 `json:"offset" validate:"min=0"`
 }
 
 type GetPersonalRecommendationsRequest struct {
-	UserID int64 `json:"user_id" validate:"required,number,min=1"`
+	UserID  int64 `json:"user_id" validate:"required,number,min=1"`
+	OrderID int64 `json:"order_id" validate:"required,number,min=1"`
+	Limit   int32 `json:"limit" validate:"required,min=1,max=20"`
+	Offset  int32 `json:"offset" validate:"min=0"`
+}
+
+
+type CreateTagRequest struct {
+	UserID  int64  `json:"user_id" validate:"required,number,min=1"`
+	TagID  int32  `json:"book_id" validate:"required,number,min=1"`
+	TagName string `json:"tag_name" validate:"required"`
+}
+
+type UpdateTagRequest struct {
+	UserID  int64  `json:"user_id" validate:"required,number,min=1"`
+	TagID  int32  `json:"book_id" validate:"required,number,min=1"`
+	TagName string `json:"tag_name" validate:"required"`
+}
+
+type DeleteTagRequest struct {
+	UserID  int64  `json:"user_id" validate:"required,number,min=1"`
+	TagID  int32  `json:"book_id" validate:"required,number,min=1"`
 }

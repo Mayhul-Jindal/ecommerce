@@ -31,6 +31,12 @@ var (
 	ErrorRecordNotFound              = pgx.ErrNoRows
 	ErrorUniqueOrForeignKeyViolation = errors.New("forbidden")
 	ErrorRequestTimeout              = errors.New("request timeout")
+	ErrorEmailNotVerified            = errors.New("email is not verified")
+	ErrorLinkExpired                 = errors.New("gmail link is expired")
+	ErrorBookAlreadyBought           = errors.New("book is laready bought")
+	ErrorAccountIsDeactivated        = errors.New("account is deactivated for now try after 24 hrs to reactivate the account")
+	ErrorAccountIsDeleted            = errors.New("you cannot use these credentials for 15 days")
+	ErrorNoUser                      = errors.New("no such user found")
 )
 
 func ErrorCode(err error) string {

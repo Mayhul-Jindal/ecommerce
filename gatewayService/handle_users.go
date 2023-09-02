@@ -81,26 +81,86 @@ func (s *APIServer) handleUsers(ctx context.Context, w http.ResponseWriter, r *h
 			return err
 		}
 
+	case "resend_email":
+		if r.Method != "GET" {
+			return errs.ErrorMethodNotAllowed
+		}
+
+		var req types.ResendEmailRequest
+		err := json.NewDecoder(r.Body).Decode(&req)
+		if err != nil {
+			return errs.ErrorBadRequest
+		}
+
+		err = s.validator.Struct(req)
+		if err != nil {
+			return errs.ErrorBadRequest
+		}
+
+		s.authSvc.ResendEmail(ctx, req)
+
+		resp = map[string]string{"message": "resending email"}
+
+	case "verify_email":
+		num, err := strconv.ParseInt(r.URL.Query().Get("id"), 10, 64)
+
+		if err != nil || num < 1 {
+			fmt.Println("Error:", err)
+			return errs.ErrorBadRequest
+		}
+		secretCode := r.URL.Query().Get("secret_code")
+
+		resp, err = s.authSvc.VerifyEmail(ctx, num, secretCode)
+		if err != nil {
+			return err
+		}
+
+	case "deactivate":
+		if r.Method != "PATCH" {
+			return errs.ErrorMethodNotAllowed
+		}
+
+		var req types.DeactivateAccountRequest
+		err := json.NewDecoder(r.Body).Decode(&req)
+		if err != nil {
+			return errs.ErrorBadRequest
+		}
+
+		err = s.validator.Struct(req)
+		if err != nil {
+			return errs.ErrorBadRequest
+		}
+
+		resp, err = s.authSvc.DeactivateAccount(ctx, req)
+		if err != nil {
+			return err
+		}
+
+	case "delete":
+		if r.Method != "DELETE" {
+			return errs.ErrorMethodNotAllowed
+		}
+
+		var req types.DeleteAccountRequest
+		err := json.NewDecoder(r.Body).Decode(&req)
+		if err != nil {
+			return errs.ErrorBadRequest
+		}
+
+		err = s.validator.Struct(req)
+		if err != nil {
+			return errs.ErrorBadRequest
+		}
+
+		resp, err = s.authSvc.DeleteAccount(ctx, req)
+		if err != nil {
+			return err
+		}
+
 	default:
 		return errs.ErrorPageNotFound
 	}
 
-	return writeJSON(w, http.StatusOK, r.URL.String(), resp)
-}
 
-// verify_email
-func (s *APIServer) handleVerifyEmail(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
-	num, err := strconv.ParseInt(r.URL.Query().Get("id"), 10, 64)
-	if err != nil || num < 1 {
-		fmt.Println("Error:", err)
-		return errs.ErrorBadRequest
-	}
-	secretCode := r.URL.Query().Get("secret_code")
-
-	resp, err := s.authSvc.VerifyEmail(ctx, num, secretCode)
-	if err != nil {
-		return err
-	}
-
-	return writeJSON(w, http.StatusOK, r.URL.String(), resp)
+	return writeJSON(ctx, w, http.StatusOK, resp)
 }

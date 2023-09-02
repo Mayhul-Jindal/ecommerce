@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 
+	errs "github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/errors"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -24,7 +25,7 @@ func (p *postgresDb) VerifyEmailTx(ctx context.Context, arg VerifyEmailTxParams)
 
 		result.VerifyEmail, err = q.UpdateVerifyEmail(ctx, UpdateVerifyEmailParams(arg))
 		if err != nil {
-			return err
+			return errs.ErrorLinkExpired
 		}
 
 		result.User, err = q.UpdateUser(ctx, UpdateUserParams{
