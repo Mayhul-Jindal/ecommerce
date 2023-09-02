@@ -7,16 +7,41 @@ Build a robust online book store to handle user authentication, authorization an
 Here are a list of features which I built appart from the demanded features
 
 ### Combination of Hexagonal and Onion Architecture
-I have made the backend in a microservice architecture which is highly decoupled. The is because of the use of ports and adapters throughtout my code (basically different interfaces for different jobs). And took some inspiration from the onion architecture to build my logging service completly detached from my bussiness logic
+I have made the backend in a microservice architecture which is highly decoupled. The is because of the use of ports and adapters throughtout my code (basically different interfaces for different jobs). And took some inspiration from the onion architecture to build my logging service completly detached from my bussiness logic. 
+![image](https://github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/assets/95216160/ad1a6ec6-d076-497b-9503-ea48ac3580d0)
+![image](https://github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/assets/95216160/2f0ba9ee-fde5-4b54-9c30-e06dd26e59d9)
+
 
 ### Background Workers
-### Soft Delete
-### Email Verification
-### Search and Filtering with NLP in Postgres 
-### Razorpay Integration
+I wrote the background workers from scratch for the task which should not block the user to further request my api. Like account deletion and email service. I have used semaphore to make a simple task queue for my worker. You can see the power of background workers here
 
+[Screencast from 02-09-23 07:29:20 PM IST.webm](https://github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/assets/95216160/2f64e370-73e7-4ca1-af2b-faa479bb9ba9)
+
+
+### Soft Delete
+Keeping data retention policy in mind I have implemented soft delete operation which basically marks the user as deleted but is not actualy deleted. The worker queue will delete the users in a batch operation
+
+### Email Verification
+Email verification for security reasons and can be used to send the receipt when order is done .
+
+### Search and Filtering with NLP in Postgres 
+I have made a complete fuzzy search implementation using NLP in postgres. Uses lexemes and similarity match in postgres to rank the results and give it to users. 
+![image](https://github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/assets/95216160/e139a29f-db1a-47b1-8909-94ebb250ba33)
+
+You can see the demo here
+
+
+
+### Razorpay Integration
+Complete razorpay integration for orders
+
+### Recommendations
+users gets recommendations of the basis of their last purchase. Also I have added a hot-selling-books endpoint
 
 ## Process Workflow
+The complete workflow is as follows:
+
+
 
 ## Technical Architecture
 
