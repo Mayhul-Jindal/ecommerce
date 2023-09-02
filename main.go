@@ -7,7 +7,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/authService"
@@ -33,7 +32,7 @@ func main() {
 	// validator
 	validator := validator.New()
 
-	// database 
+	// database
 	dbPool, err := pgxpool.New(context.Background(), config.DB_URL)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to create connection pool: %v\n", err)
@@ -58,9 +57,9 @@ func main() {
 	authService := authService.NewLoggingService(
 		authService.NewManager(config, tokenMaker, database, worker),
 	)
-	
+
 	// book service with logger attached (onion architecture)
-	bookService :=  bookService.NewLoggingService(
+	bookService := bookService.NewLoggingService(
 		bookService.NewManager(database, razorPayClient),
 	)
 
