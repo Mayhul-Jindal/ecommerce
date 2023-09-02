@@ -103,8 +103,64 @@ CREATE TABLE "Purchases" (
   CONSTRAINT "order_lines_orderid_book_key" UNIQUE ("order_id", "book_id")
 );
 
--- indexes
--- TODO: Create indexes wherever possible to speed things up
-
 -- extension
 create extension fuzzystrmatch;
+
+-- mock data
+INSERT INTO "Books" ("title", "author", "tags_array", "price", "description", "download_link")
+VALUES ('The Great Gatsby', 'F. Scott Fitzgerald', '{1, 2, 3}', 15, 'A classic novel about the American Dream.', 'https://example.com/book1'),
+       ('To Kill a Mockingbird', 'Harper Lee', '{4, 5, 6}', 12, 'A powerful exploration of racial injustice.', 'https://example.com/book2'),
+       ('1984', 'George Orwell', '{7, 8}', 10, 'A dystopian vision of a totalitarian society.', 'https://example.com/book3'),
+       ('Pride and Prejudice', 'Jane Austen', '{9, 10}', 14, 'A timeless tale of romance and social class.', 'https://example.com/book4'),
+       ('The Hobbit', 'J.R.R. Tolkien', '{11, 12}', 18, 'An adventure in a fantastical world.', 'https://example.com/book5'),
+('Brave New World', 'Aldous Huxley', '{15, 16}', 11, 'A cautionary tale about a controlled society.', 'https://example.com/book7'),
+       ('The Lord of the Rings', 'J.R.R. Tolkien', '{11, 12, 17}', 25, 'An epic fantasy trilogy.', 'https://example.com/book8'),
+       ('Moby-Dick', 'Herman Melville', '{18, 19}', 16, 'A tale of obsession and revenge.', 'https://example.com/book9'),
+       ('Frankenstein', 'Mary Shelley', '{20, 21}', 14, 'A classic horror story.', 'https://example.com/book10'),
+       ('The Picture of Dorian Gray', 'Oscar Wilde', '{22, 23}', 17, 'A philosophical exploration of beauty and morality.', 'https://example.com/book11'),
+       ('War and Peace', 'Leo Tolstoy', '{24, 25}', 22, 'An epic historical novel.', 'https://example.com/book12'),
+       ('The Adventures of Huckleberry Finn', 'Mark Twain', '{26, 27}', 15, 'A journey down the Mississippi River.', 'https://example.com/book13'),
+       ('Jane Eyre', 'Charlotte Brontë', '{28, 29}', 12, 'A story of a young woman''s journey to find herself.', 'https://example.com/book14'),
+       ('The Odyssey', 'Homer', '{30, 31}', 18, 'An ancient Greek epic.', 'https://example.com/book15'),
+       ('Dracula', 'Bram Stoker', '{32, 33}', 16, 'A tale of the legendary vampire.', 'https://example.com/book16'),
+       ('The Alchemist', 'Paulo Coelho', '{34, 35}', 10, 'A novel about following your dreams.', 'https://example.com/book17'),
+       ('The Scarlet Letter', 'Nathaniel Hawthorne', '{36, 37}', 13, 'A story of sin and redemption.', 'https://example.com/book18'),
+       ('Fahrenheit 451', 'Ray Bradbury', '{38, 39}', 11, 'A cautionary tale about censorship.', 'https://example.com/book19'),
+       ('The Grapes of Wrath', 'John Steinbeck', '{40, 41}', 14, 'A story of the Great Depression.', 'https://example.com/book20');
+
+INSERT INTO "Tags" ("id", "tag_name") VALUES
+  (1, 'Classics'),
+  (2, 'Fiction'),
+  (3, 'Dystopian'),
+  (4, 'Fantasy'),
+  (5, 'Romance'),
+  (6, 'Young Adult'),
+  (7, 'Adventure'),
+  (8, 'High Fantasy'),
+  (9, 'Science Fiction'),
+  (10, 'Literary Fiction'),
+  (11, 'Thriller'),
+  (12, 'Mystery'),
+  (13, 'Coming of Age'),
+  (14, 'Horror'),
+  (15, 'Magical Realism'),
+  (16, 'Philosophical'),
+  (17, 'Epic'),
+  (18, 'Historical'),
+  (19, 'Mystery Thriller'),
+  (20, 'Gothic'),
+  (21, 'Epic Poetry'),
+  (22, 'Historical Fiction'),
+  (23, 'Contemporary'),
+  (24, 'Paranormal'),
+  (25, 'Action'),
+  (26, 'Suspense'),
+  (27, 'Supernatural'),
+  (28, 'Crime'),
+  (29, 'Political'),
+  (30, 'Comedy'),
+  (31, 'Family'),
+  (32, 'Tragedy'),
+  (33, 'Adventure Fiction'),
+  (34, 'Science Fantasy'),
+  (35, 'Mythology');

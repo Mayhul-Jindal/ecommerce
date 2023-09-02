@@ -16,9 +16,6 @@ migrateup:
 migratedown:
 	migrate -path ./database/migrations -database "$(DB_URL)" -verbose down
 
-new_migration:
-	migrate create -ext sql -dir database/migrations -seq $(name)
-
 sqlc:
 	sqlc generate
 
