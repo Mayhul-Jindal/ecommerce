@@ -3,6 +3,34 @@
 ## Problem Statement
 Build a robust online book store to handle user authentication, authorization and access management.
 
+## Setup
+
+1. Clone the repository repository
+```
+https://github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal.git
+```
+
+2. Install go-migrate tool
+```
+curl -L https://github.com/golang-migrate/migrate/releases/download/v4.14.1/migrate.linux-amd64.tar.gz | tar xvz
+        sudo mv migrate.linux-amd64 /usr/bin/migrate
+        which migrate
+```
+
+3. Now using docker and make file (make sure docker and make are installed)
+```
+make postgres
+```
+```
+make createbd
+```
+```
+make migrateup
+```
+```
+make run
+```
+
 ## Salient Features
 Here are a list of features which I built appart from the demanded features
 
@@ -28,72 +56,22 @@ Email verification for security reasons and can be used to send the receipt when
 I have made a complete fuzzy search implementation using NLP in postgres. Uses lexemes and similarity match in postgres to rank the results and give it to users. 
 ![image](https://github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/assets/95216160/e139a29f-db1a-47b1-8909-94ebb250ba33)
 
-You can see the demo here
-
-
+You can see the demo here where I intensionaly put wrong spelling of `jane eyre` as `jane iyre` but still got the correct result
+![image](https://github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/assets/95216160/619a95b6-b54d-4e4a-8643-0ab7bfe5440e)
 
 ### Razorpay Integration
-Complete razorpay integration for orders
+Complete razorpay integration for orders.
+![image](https://github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/assets/95216160/1f3f6136-2b28-4a87-806c-7b0070f881f7)
+
+First adding to cart
+[Screencast from 02-09-23 07:46:57 PM IST.webm](https://github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/assets/95216160/5d568f94-29e4-43e2-baa2-a373e7ebcd66)
+
+Second placing the order
+[Screencast from 02-09-23 07:49:03 PM IST.webm](https://github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/assets/95216160/47c3a84a-e0f4-4ae0-9fc5-939ef10e993d)
+
 
 ### Recommendations
-users gets recommendations of the basis of their last purchase. Also I have added a hot-selling-books endpoint
+users gets recommendations of the basis of their last purchase. Also I have added a hot-selling-books endpoint which you can try out
 
-## Process Workflow
-The complete workflow is as follows:
-
-
-
-## Technical Architecture
-
-## Customizability and Maintainability
-
-
-
-
-## Demand Features Status
-
-### Key Features
-- [X] Secure user registration and authentication
-- [ ] Account Deactivation and Deletion: Allow users to deactivate or delete their accounts, if applicable. Implement a mechanism to handle account deletion securely while considering data retention policies.
-- [X] Protection against vulnerabilities like SQL injection attacks
-- [X] Have Proper system logging with retention policies upon system failure
-- [ ] Users can easily search and filter books and add them to shopping cart
-- [ ] Users can easily download their bought books and leave a review on the books they bought
-- [ ] Admins have the ability to manage inventory and others 
-
-### Requirements
-- [ ] Make the necessary APIs to expose (go micro-service)
-- [ ] SQL based database (PostgreSQL)
-- [ ] Use a reverse proxy of your choice (nginx)
-
-### Bonus Points
-- [ ] You can use Docker and containerize your application code to run, including the database
-- [ ] You can test your code by adding unit test cases and workflow test cases
-- [ ] You can add recommendation system to recommend books to user
-
-### Detailed Solution
-- ports and adapter/ hex/ onion you can call it what you want. I just made the code maintainable
-- why paesto instead of jwt. more secure and shit
-- Dont need for uneccessary folders. In my opinion increases complexity, I like to keep it simple
-
-- <iframe width="560" height="315" src='https://dbdiagram.io/embed/64e4cc4c02bd1c4a5e353140'> </iframe>
-
-- why migrate tool is needed 
-- database vs gorm vs other 
-
-- database indexes filtering searching
-- database ke models use honge saari jagah
-- change name of database to postgres
-
-
-- Soft delete allows you to mark records as deleted without actually removing them from the database. This can be useful for scenarios where you want to retain the data for auditing or historical purposes.
-
-- tags se better seo, recommendations, search optimization 
-
-- JWT give developers too many algorithms to choos, some algorithms are known to be vulnerable(ECDSA, RSA)
-- trivial forgery "alg" to "none"
-- it is crutial to check eaders jisse symetric keys aur asymteric keys wala issue na hoajye
-- you can see there are many issue with jwt that is why use paesto (it follows the best practices)
-
-
-- grpcs I dont think karne ki zaroorat hain
+### Robust database design
+![BalkanID-Book-Management-System](https://github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/assets/95216160/766f3b3f-f1ee-4eee-af3c-396f849225a8)
