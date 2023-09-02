@@ -26,7 +26,7 @@ type Manager interface {
 	SignUp(ctx context.Context, req types.CreateUserRequest) (types.UserResponse, error)
 	Login(ctx context.Context, req types.LoginUserRequest) (types.LoginUserResponse, error)
 	RenewAccess(ctx context.Context, req types.RenewAccessTokenRequest) (types.RenewAccessTokenResponse, error)
-	VerifyEmail(ctx context.Context, id int64, secret_code string) (types.VerifyEmailResponse, error) // time mila toh uske bhi type.request ke format mein kardena
+	VerifyEmail(ctx context.Context, id int64, secret_code string) (types.VerifyEmailResponse, error) 
 	ResendEmail(ctx context.Context, req types.ResendEmailRequest)
 
 	// authorized

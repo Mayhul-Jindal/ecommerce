@@ -9,86 +9,6 @@ import (
 	"context"
 )
 
-const searchBooksV1 = `-- name: SearchBooksV1 :many
-
-
-with book_search_cte as 
-(
-    SELECT
-        b.id,
-        b.title,
-        b.author,
-        array_agg(t.tag_name) AS tags_array,
-        r.average_ratings as ratings,
-        b.description
-    FROM "Books" AS b
-    LEFT JOIN "Tags" AS t ON t.id = ANY(b.tags_array)
-    LEFT JOIN (
-        select book_id, avg(rating) as average_ratings from "Reviews"
-        group by book_id
-        ) as r on r.book_id = b.id
-    GROUP BY
-        b.id, b.title, b.author, r.average_ratings, b.description
-)
-select id, title, author, tags_array, ratings, description,  
-ts_rank(
-	to_tsvector('english', title) || ' ' ||
-	to_tsvector('english', author) || ' ' ||
-	setweight(to_tsvector('english', array_to_string(COALESCE(tags_array, '{}'), ' ')), 'A') || ' ' ||
-	to_tsvector('english', description),
-	websearch_to_tsquery('english', $1)
-  ) AS ranks
-from book_search_cte
-order by ranks desc
-limit $2
-offset $3
-`
-
-type SearchBooksV1Params struct {
-	WebsearchToTsquery string `json:"websearch_to_tsquery"`
-	Limit              int32  `json:"limit"`
-	Offset             int32  `json:"offset"`
-}
-
-type SearchBooksV1Row struct {
-	ID          int64       `json:"id"`
-	Title       string      `json:"title"`
-	Author      string      `json:"author"`
-	TagsArray   interface{} `json:"tags_array"`
-	Ratings     float64     `json:"ratings"`
-	Description string      `json:"description"`
-	Ranks       float32     `json:"ranks"`
-}
-
-// TODO fuzzy searching add karni hain isme fkin
-func (q *Queries) SearchBooksV1(ctx context.Context, arg SearchBooksV1Params) ([]SearchBooksV1Row, error) {
-	rows, err := q.db.Query(ctx, searchBooksV1, arg.WebsearchToTsquery, arg.Limit, arg.Offset)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []SearchBooksV1Row{}
-	for rows.Next() {
-		var i SearchBooksV1Row
-		if err := rows.Scan(
-			&i.ID,
-			&i.Title,
-			&i.Author,
-			&i.TagsArray,
-			&i.Ratings,
-			&i.Description,
-			&i.Ranks,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const searchBooksV2 = `-- name: SearchBooksV2 :many
 WITH book_search_cte AS (
     SELECT
@@ -141,7 +61,7 @@ type SearchBooksV2Row struct {
 	Title                 string      `json:"title"`
 	Author                string      `json:"author"`
 	TagsArray             interface{} `json:"tags_array"`
-	Ratings               float64     `json:"ratings"`
+	Ratings               interface{}     `json:"ratings"`
 	Description           string      `json:"description"`
 	Ranks                 float32     `json:"ranks"`
 	TagsDifference        int32       `json:"tags_difference"`

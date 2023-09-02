@@ -26,7 +26,7 @@ import (
 type Manager interface {
 	// search
 	Search(ctx context.Context, req types.SearchBooksV1Request) ([]database.SearchBooksV2Row, error)
-
+	
 	// recommendations
 	GetHotSelling(ctx context.Context, req types.GetHotSellingRequest) ([]database.GetHotSellingBooksRow, error)
 	GetPersonalRecommendations(ctx context.Context, req types.GetPersonalRecommendationsRequest) ([]database.SearchBooksV2Row, error)
@@ -58,8 +58,6 @@ type Manager interface {
 	UpdateReview(ctx context.Context, req types.UpdateReviewRequest) (database.Review, error)
 	DeleteReview(ctx context.Context, req types.DeleteReviewRequest) error
 }
-
-// one should add dependencies/tools here
 type bookManager struct {
 	db             database.Storer
 	razorPayClient *razorpay.Client

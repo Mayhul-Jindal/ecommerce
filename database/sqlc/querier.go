@@ -52,8 +52,6 @@ type Querier interface {
 	GetUserById(ctx context.Context, id int64) (User, error)
 	GetUserByUsername(ctx context.Context, username string) (User, error)
 	GetUserRecommendations(ctx context.Context, arg GetUserRecommendationsParams) ([][]byte, error)
-	// TODO fuzzy searching add karni hain isme fkin
-	SearchBooksV1(ctx context.Context, arg SearchBooksV1Params) ([]SearchBooksV1Row, error)
 	SearchBooksV2(ctx context.Context, arg SearchBooksV2Params) ([]SearchBooksV2Row, error)
 	UpdateBook(ctx context.Context, arg UpdateBookParams) (Book, error)
 	UpdateOrder(ctx context.Context, arg UpdateOrderParams) (Order, error)
