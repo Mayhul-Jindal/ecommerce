@@ -12,7 +12,6 @@ package gatewayservice
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"os"
 	"time"
@@ -62,10 +61,10 @@ func NewAPIServer(listenAddr string, authSvc authService.Manager, bookSvc bookSe
 
 func (s *APIServer) Run() {
 	router := mux.NewRouter()
-
+	router.HandleFunc("/", makeAPIFunc(s.handleRoot))
 	router.HandleFunc("/users/{action}", makeAPIFunc(s.handleUsers))
 	router.HandleFunc("/search", makeAPIFunc(s.handleSearch))
-	router.HandleFunc("/tags", makeAPIFunc(s.handleTags))
+	router.HandleFunc("/tags/{action}", makeAPIFunc(s.handleTags))
 	router.HandleFunc("/recommendations/hotselling", makeAPIFunc(s.handleHotSelling))
 
 	router.HandleFunc("/book/{action}", makeAPIFunc(s.checkAuthorization(s.handleBook)))
@@ -80,14 +79,12 @@ func (s *APIServer) Run() {
 
 	router.HandleFunc("/{random}", makeAPIFunc(s.handlePageNotFound))
 
-	srv := &http.Server{
-		Handler:      router,
-		Addr:         fmt.Sprintf("127.0.0.1%s", s.listenAddr),
-		WriteTimeout: 15 * time.Second,
-		ReadTimeout:  15 * time.Second,
+	logger.Info().Msgf("starting server on %s", s.listenAddr)
+	err := http.ListenAndServe(":3000", router)
+	if err != nil {
+		logger.Fatal().Msgf("failed to start a server at port %s", s.listenAddr)
+		os.Exit(1)
 	}
-
-	srv.ListenAndServe()
 }
 
 // centralized logging for json api gateway
@@ -103,7 +100,6 @@ func writeJSON(ctx context.Context, w http.ResponseWriter, s int, v any) error {
 			Str("addr", ctx.Value(types.RemoteAddress).(string)).
 			Str("err", apiErr.Error).
 			Send()
-			
 	} else {
 		logger.Info().
 			Int("status", s).

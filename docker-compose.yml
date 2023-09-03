@@ -1,0 +1,37 @@
+version: "3.8"
+
+services:
+
+  postgres:
+    image: postgres
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_DB=book-store
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - DB_URL=postgresql://admin:admin@postgres:5432/book-store?sslmode=disable
+    depends_on:
+      - postgres
+    entrypoint: [ "/app/wait-for.sh", "postgres:5432", "--", "/app/start.sh" ]
+    command: [ "/app/main" ]
+
+  nginx:
+    image: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginxService/nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - api
+
+
+
+  
+# sh -c 'migrate -path ./database/migrations -database "$DB_URL" -verbose up && ./main'
