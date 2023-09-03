@@ -11,30 +11,14 @@ Build a robust online book store to handle user authentication, authorization an
 https://github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal.git
 ```
 
-2. Install go-migrate tool
+2. Install docker and docker-compose (for ubunutu)
 ```
-curl -L https://github.com/golang-migrate/migrate/releases/download/v4.14.1/migrate.linux-amd64.tar.gz | tar xvz
-        sudo mv migrate.linux-amd64 /usr/bin/migrate
-        which migrate
+sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 ```
 
-3. Now using docker and make file (make sure docker and make are installed)
+3. Run docker-compose up
 ```
-make postgres
-```
-```
-make createdb
-```
-```
-make migrateup
-```
-```
-make run
-```
-
-4. Refer to postman if any issues faced while requesting
-```
-https://www.postman.com/mission-physicist-26981670/workspace/balkanid-book-store
+docker-compose up
 ```
 
 ## Salient Features
