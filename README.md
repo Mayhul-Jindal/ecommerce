@@ -23,7 +23,7 @@ curl -L https://github.com/golang-migrate/migrate/releases/download/v4.14.1/migr
 make postgres
 ```
 ```
-make createbd
+make createdb
 ```
 ```
 make migrateup
