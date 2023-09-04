@@ -22,56 +22,52 @@ docker-compose up
 ```
 
 ## Salient Features
-Here are a list of features which I built appart from the demanded features
 
 ### Combination of Hexagonal and Onion Architecture
-I have made the backend in a microservice style which is highly decoupled. This is because ,I used ports and adapters architecture throughtout my code (basically different interfaces for different jobs). And took some inspiration from the onion architecture to build my logging service completly detached from my bussiness logic. 
+My code is highly decoupled. This is possible because I have used `ports and adapters architecture` throughtout my code base(basically different interfaces for different jobs). Took some inspiration from the `onion architecture` to build my logging service completly detached from my bussiness logic and to make middlewares for my json api 
 
-[Screencast from 02-09-23 08:16:42 PM IST.webm](https://github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/assets/95216160/81555b0c-c800-4506-bfa4-a52abc393144)
+- Power of `ports and adapter architecture` (high level overview)
+ ![ports and adapters example(1)](https://github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/assets/95216160/ec096e8b-485a-465a-9461-8e43f008129b)
 
+- Power of `onion architecture` (high level overview)
+![onion architecture example(1)](https://github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/assets/95216160/759e7fe9-409d-44bf-8ae4-9f20edf1d016)
 
-I have implemented logs with tracing which can help export the logs to fluentd for further analysis
-![image](https://github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/assets/95216160/47677e88-2ac1-4bc0-a6e2-bd2368df247f)
-
-All the errors are handled at a single place so you dont have to look here are there in the code to handle the errors
-![image](https://github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/assets/95216160/38e7745e-37e5-45d6-b94e-e60d302d4754)
 
 ### Background Workers
-I wrote the background workers from scratch for the task which should not block the user to further request my api. Like account deletion and email service. I have used semaphore to make a simple task queue for my worker. You can see the power of background workers here
+I wrote the `background workers from scratch` for the task which should not block the user to further request my api (eg:- while email is sent to user and when user deleted their account). I have used `semaphore` to make a simple task queue for my worker. You can see the power of background workers here
 
-[Screencast from 02-09-23 07:29:20 PM IST.webm](https://github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/assets/95216160/2f64e370-73e7-4ca1-af2b-faa479bb9ba9)
-
-The semaphore implementation is below. Lokks very small but it works like a charm (basically prevents task to enter into the criticial section if the channel if full)
-![image](https://github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/assets/95216160/ad8e67c6-6114-48c8-82dd-bb285fcd6bf5)
+- Working of email background worker for `email verification`
+[email_worker.webm](https://github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/assets/95216160/feb4b57e-7036-418d-82b5-e091413f6539)
 
 
+- Working of deletion operation in background to support `soft delete`
 
-### Soft Delete
-Keeping data retention policy in mind I have implemented soft delete operation which basically marks the user as deleted but is not actualy deleted. The worker queue will delete the users in a batch operation
-
-### Email Verification
-Email verification for security reasons and can be used to send the receipt when order is done .
 
 ### Search and Filtering with NLP in Postgres 
-I have made a complete fuzzy search implementation using NLP in postgres. Uses lexemes and similarity match in postgres to rank the results and give it to users. 
-![image](https://github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/assets/95216160/e139a29f-db1a-47b1-8909-94ebb250ba33)
+I have made a complete `fuzzy search` implementation using NLP in postgres. Uses `stop word removal`, `lexeme` formation and `similarity match` in postgres to rank the results and give it to users. 
 
-You can see the demo here where I intensionaly put wrong spelling of `jane eyre` as `jane iyre` but still got the correct result
-![image](https://github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/assets/95216160/619a95b6-b54d-4e4a-8643-0ab7bfe5440e)
+-- todo yaha image ayegi
 
 ### Razorpay Integration
-Complete razorpay integration for orders.
+Complete razorpay integration for orders. Operational flow is like
 
 ![image](https://github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/assets/95216160/1f3f6136-2b28-4a87-806c-7b0070f881f7)
 
-First adding to cart
+1. Add books to cart
 
 [Screencast from 02-09-23 07:46:57 PM IST.webm](https://github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/assets/95216160/5d568f94-29e4-43e2-baa2-a373e7ebcd66)
 
-Second placing the order
+2. Place order
 
 [Screencast from 02-09-23 07:49:03 PM IST.webm](https://github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/assets/95216160/47c3a84a-e0f4-4ae0-9fc5-939ef10e993d)
 
+
+
+
+
+
+
+## yeh kisi aur heading ke neeche ayenge
 
 ### Recommendations
 users gets recommendations of the basis of their last purchase. Also I have added a hot-selling-books endpoint which you can try out
