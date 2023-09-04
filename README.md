@@ -65,6 +65,8 @@ Complete razorpay integration for orders. Operational flow is like
 
 
 
+## Operational Flow
+![Operational flow](https://github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/assets/95216160/b388a573-60d7-4a76-9704-4b65589b507a)
 
 
 
