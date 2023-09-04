@@ -10,7 +10,6 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// handle order dynamically :/
 func (s *APIServer) handleOrder(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 	action := mux.Vars(r)["action"]
 

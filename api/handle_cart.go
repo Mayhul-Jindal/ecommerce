@@ -10,7 +10,6 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// handle cart dynamically :/
 func (s *APIServer) handleCart(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 	action := mux.Vars(r)["action"]
 

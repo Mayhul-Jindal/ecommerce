@@ -12,7 +12,6 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// login signup renew_access
 func (s *APIServer) handleUsers(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 	action := mux.Vars(r)["action"]
 

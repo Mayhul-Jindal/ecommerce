@@ -9,7 +9,7 @@ import (
 	"github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/types"
 )
 
-// handle search
+
 func (s *APIServer) handleSearch(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 	if r.Method != "GET" {
 		return errs.ErrorMethodNotAllowed

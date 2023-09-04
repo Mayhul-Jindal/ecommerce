@@ -1,11 +1,3 @@
-// TODO
-/*
-- handle delete account request
-- handle account deactivation
-- give error types help us to identify what to send at what error if that makes sense
-- handle database errors in the database package itself
-*/
-
 package authService
 
 import (
@@ -189,7 +181,6 @@ func (a *authManager) RenewAccess(ctx context.Context, req types.RenewAccessToke
 	return resp, nil
 }
 
-// TODO basicalyy user gaya hain voh link peh aur waha se I have got the id and
 func (a *authManager) VerifyEmail(ctx context.Context, id int64, secret_code string) (types.VerifyEmailResponse, error) {
 	txResult, err := a.db.VerifyEmailTx(ctx, database.VerifyEmailTxParams{
 		ID:         id,
@@ -214,7 +205,7 @@ func (a *authManager) ResendEmail(ctx context.Context, req types.ResendEmailRequ
 	})
 }
 
-// TODO move these down
+
 func (a *authManager) DeactivateAccount(ctx context.Context, req types.DeactivateAccountRequest) (types.DeactivateAccountResponse, error) {
 	authPayload := ctx.Value(types.AuthorizationPayload).(*token.Payload)
 	if authPayload.UserID != req.UserID {
@@ -279,7 +270,6 @@ func (a *authManager) DeleteAccount(ctx context.Context, req types.DeleteAccount
 		return types.DeleteAccountResponse{}, err
 	}
 
-	// TODO move actual deletion to worker
 	a.worker.EnqueueDeleteOperation(authPayload.UserID)
 
 	return types.DeleteAccountResponse{

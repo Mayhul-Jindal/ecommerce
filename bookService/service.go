@@ -328,7 +328,7 @@ func (b *bookManager) GetCart(ctx context.Context, req types.GetCartRequest) ([]
 }
 
 func (b *bookManager) AddToCart(ctx context.Context, req types.AddToCartRequest) (database.Cart, error) {
-	// todo check if already bought then dont put in cart
+	
 	authPayload := ctx.Value(types.AuthorizationPayload).(*token.Payload)
 	if authPayload.UserID != req.UserID {
 		return database.Cart{}, errs.ErrorNotAuthorized
@@ -355,7 +355,7 @@ func (b *bookManager) AddToCart(ctx context.Context, req types.AddToCartRequest)
 	return resp, nil
 }
 
-// TODO dont knpw why but no error is comming
+
 func (b *bookManager) DeleteCartItem(ctx context.Context, req types.DeleteCartItemRequest) error {
 	authPayload := ctx.Value(types.AuthorizationPayload).(*token.Payload)
 	if authPayload.UserID != req.UserID {
@@ -421,7 +421,6 @@ func (b *bookManager) PlaceOrder(ctx context.Context, req types.PlaceOrderReques
 }
 
 func (b *bookManager) VerifyOrder(ctx context.Context, req types.VerifyOrderRequest) (database.UpdateOrderTxResult, error) {
-	// todo check if already verified
 	authPayload := ctx.Value(types.AuthorizationPayload).(*token.Payload)
 	if authPayload.UserID != req.UserID {
 		return database.UpdateOrderTxResult{}, errs.ErrorNotAuthorized

@@ -18,6 +18,7 @@ type APIError struct {
 	Error string `json:"error"`
 }
 
+// centralized error handling
 func makeAPIFunc(fn APIFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := context.WithValue(r.Context(), types.RemoteAddress, r.RemoteAddr)

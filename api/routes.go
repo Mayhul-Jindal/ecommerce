@@ -1,12 +1,5 @@
-// TODO
-/*
-- I have is_email_verified  {usethis for add to cart restriction}
-- I have is_admin
-- I have is_deactivated
-- T have is_deleted
-*/
 
-// this is currentyl acting as api gateway for my whole architecture
+// this is currently acting as api gateway for my whole architecture
 package api
 
 import (
@@ -53,6 +46,8 @@ func NewAPIServer(listenAddr string, authSvc authService.Manager, bookSvc bookSe
 
 func (s *APIServer) Run() {
 	router := mux.NewRouter()
+
+	// all the routes
 	router.HandleFunc("/", makeAPIFunc(s.handleRoot))
 
 	router.HandleFunc("/users/delete", makeAPIFunc(s.checkAuthorization(s.handleDeleteUser)))
@@ -67,10 +62,6 @@ func (s *APIServer) Run() {
 	router.HandleFunc("/order/{action}", makeAPIFunc(s.checkAuthorization(s.handleOrder)))
 	router.HandleFunc("/review/{action}", makeAPIFunc(s.checkAuthorization(s.handleReviews)))
 	router.HandleFunc("/recommendations/personal", makeAPIFunc(s.checkAuthorization(s.handleRecommendations)))
-
-	// todo Add a transaction for deletion of record
-	// router.HandleFunc("/users/deactivate", makeAPIFunc(s.checkAuthorization(s.handleDeactivateAccount)))
-	// router.HandleFunc("/users/delete", makeAPIFunc(s.checkAuthorization(s.handleDeleteAccount)))
 
 	router.HandleFunc("/{random}", makeAPIFunc(s.handlePageNotFound))
 
