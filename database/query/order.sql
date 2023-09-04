@@ -16,7 +16,7 @@ set "status" = $1
 WHERE "id" = $2 and user_id = $3
 RETURNING *;
 
--- name: DeleteOrder :exec
+-- name: DeleteOrdersOfUser :exec
 delete from "Orders"
 where user_id = $1;
 

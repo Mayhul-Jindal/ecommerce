@@ -10,12 +10,12 @@ import (
 	"github.com/rs/zerolog"
 )
 
+// logger for book service
 type loggingService struct {
 	next   Manager
 	logger zerolog.Logger
 }
 
-// DeleteTag implements Manager.
 func NewLoggingService(svc Manager) Manager {
 	logger := zerolog.New(zerolog.ConsoleWriter{Out: os.Stderr, TimeFormat: time.RFC3339}).
 		Level(zerolog.TraceLevel).

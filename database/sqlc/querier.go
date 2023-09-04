@@ -25,19 +25,14 @@ type Querier interface {
 	CreateVerifyEmail(ctx context.Context, arg CreateVerifyEmailParams) (VerifyEmail, error)
 	DeleteBook(ctx context.Context, id int64) error
 	DeleteCartItem(ctx context.Context, arg DeleteCartItemParams) error
-	DeleteOrder(ctx context.Context, userID int64) error
-	DeletePurchase(ctx context.Context, userID int64) error
+	DeleteCartOfUser(ctx context.Context, userID int64) error
+	DeleteOrdersOfUser(ctx context.Context, userID int64) error
+	DeletePurchasesOfUser(ctx context.Context, userID int64) error
 	DeleteReview(ctx context.Context, id int64) error
-	DeleteSession(ctx context.Context, userID int64) error
+	DeleteSessionsOfUser(ctx context.Context, userID int64) error
 	DeleteTag(ctx context.Context, id int32) error
-	// -- name: CheckUserDeactivated :one
-	// select * from "Users"
-	// where id = $1 and is_active;
-	// -- name: CheckUserDeleted :one
-	// select * from "Users"
-	// where id = $1 and is_deleted;
 	DeleteUser(ctx context.Context, id int64) error
-	DeleteVerifyEmail(ctx context.Context, userID int64) error
+	DeleteVerifyEmailsOfUser(ctx context.Context, userID int64) error
 	GetAllTags(ctx context.Context) ([]Tag, error)
 	GetBookById(ctx context.Context, id int64) (GetBookByIdRow, error)
 	GetCartItemsByUserId(ctx context.Context, userID int64) ([]GetCartItemsByUserIdRow, error)

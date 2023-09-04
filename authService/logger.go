@@ -9,7 +9,7 @@ import (
 	"github.com/rs/zerolog"
 )
 
-// its important to get the time took for the round trip on auth service
+// logger for auth service
 type loggingService struct {
 	next   Manager
 	logger zerolog.Logger

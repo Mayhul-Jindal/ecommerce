@@ -44,13 +44,13 @@ func (q *Queries) AddOrder(ctx context.Context, arg AddOrderParams) (Order, erro
 	return i, err
 }
 
-const deleteOrder = `-- name: DeleteOrder :exec
+const deleteOrdersOfUser = `-- name: DeleteOrdersOfUser :exec
 delete from "Orders"
 where user_id = $1
 `
 
-func (q *Queries) DeleteOrder(ctx context.Context, userID int64) error {
-	_, err := q.db.Exec(ctx, deleteOrder, userID)
+func (q *Queries) DeleteOrdersOfUser(ctx context.Context, userID int64) error {
+	_, err := q.db.Exec(ctx, deleteOrdersOfUser, userID)
 	return err
 }
 

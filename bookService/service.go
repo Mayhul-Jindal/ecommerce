@@ -181,6 +181,7 @@ func (b *bookManager) AddBook(ctx context.Context, req types.AddBookRequest) (da
 	return resp, nil
 }
 
+
 func (b *bookManager) UpdateBook(ctx context.Context, req types.UpdateBookRequest) (database.Book, error) {
 	authPayload := ctx.Value(types.AuthorizationPayload).(*token.Payload)
 	if authPayload.UserID != req.UserID {

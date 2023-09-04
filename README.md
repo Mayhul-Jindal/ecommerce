@@ -27,11 +27,13 @@ Here are a list of features which I built appart from the demanded features
 ### Combination of Hexagonal and Onion Architecture
 I have made the backend in a microservice style which is highly decoupled. This is because ,I used ports and adapters architecture throughtout my code (basically different interfaces for different jobs). And took some inspiration from the onion architecture to build my logging service completly detached from my bussiness logic. 
 
+
 [Screencast from 02-09-23 08:16:42 PM IST.webm](https://github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/assets/95216160/81555b0c-c800-4506-bfa4-a52abc393144)
 
 
 I have implemented logs with tracing which can help export the logs to fluentd for further analysis
 ![image](https://github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/assets/95216160/47677e88-2ac1-4bc0-a6e2-bd2368df247f)
+
 
 All the errors are handled at a single place so you dont have to look here are there in the code to handle the errors
 ![image](https://github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/assets/95216160/38e7745e-37e5-45d6-b94e-e60d302d4754)
@@ -78,3 +80,22 @@ users gets recommendations of the basis of their last purchase. Also I have adde
 
 ### Robust database design
 ![BalkanID-Book-Management-System](https://github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/assets/95216160/766f3b3f-f1ee-4eee-af3c-396f849225a8)
+
+
+
+
+
+
+
+
+
+
+
+
+Go Mock is a mocking framework for the Go programming language. It is used to create mock objects for testing Go code. Mock objects are objects that simulate the behavior of real objects in a controlled way. They are used in unit testing to isolate the code being tested from its dependencies, so that the code can be tested in isolation. Go Mock is typically used in the following scenarios:
+
+    When testing code that depends on external services or APIs. Mock objects can be used to simulate the behavior of these external dependencies, so that the code can be tested in isolation.
+    When testing code that depends on complex objects or data structures. Mock objects can be used to simplify the dependencies, so that the code can be tested more easily.
+    When testing code that is difficult to test using traditional unit testing techniques. Mock objects can be used to simulate the behavior of the code being tested, so that the code can be tested in isolation.
+
+Go Mock provides a simple and easy-to-use API for creating mock objects. It allows developers to create mock objects for interfaces and functions, and provides methods for setting expectations and verifying behavior. In summary, Go Mock is a mocking framework for the Go programming language that is used to create mock objects for testing Go code. It is typically used to isolate code being tested from its dependencies, simplify complex dependencies, and test difficult-to-test code.

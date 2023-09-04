@@ -20,7 +20,7 @@ with cte as (
 select * from "Books" b
 join cte on cte.book_id = b.id;
 
--- name: DeletePurchase :exec
+-- name: DeletePurchasesOfUser :exec
 DELETE FROM "Purchases"
 WHERE user_id = $1;
 

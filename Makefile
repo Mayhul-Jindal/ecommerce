@@ -12,7 +12,6 @@ dropdb:
 migrateup:
 	migrate -path ./database/migrations -database "$(DB_URL)" -verbose up
 
-
 migratedown:
 	migrate -path ./database/migrations -database "$(DB_URL)" -verbose down
 
@@ -27,7 +26,6 @@ run: build
 
 test: 
 	@go test -v ./...
-
 
 .PHONY: postgres createdb dropdb migrateup migratedown sqlc build run test
 	

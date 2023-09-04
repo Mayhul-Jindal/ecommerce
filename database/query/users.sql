@@ -46,14 +46,6 @@ where id = $1 and is_admin;
 select * from "Users"
 where id = $1 and is_email_verified;
 
--- -- name: CheckUserDeactivated :one
--- select * from "Users"
--- where id = $1 and is_active;
-
--- -- name: CheckUserDeleted :one
--- select * from "Users" 
--- where id = $1 and is_deleted;
-
 
 -- name: DeleteUser :exec
 delete from "Users"

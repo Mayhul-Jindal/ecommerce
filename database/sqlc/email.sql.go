@@ -40,13 +40,13 @@ func (q *Queries) CreateVerifyEmail(ctx context.Context, arg CreateVerifyEmailPa
 	return i, err
 }
 
-const deleteVerifyEmail = `-- name: DeleteVerifyEmail :exec
+const deleteVerifyEmailsOfUser = `-- name: DeleteVerifyEmailsOfUser :exec
 delete from "Verify_Emails"
 where user_id = $1
 `
 
-func (q *Queries) DeleteVerifyEmail(ctx context.Context, userID int64) error {
-	_, err := q.db.Exec(ctx, deleteVerifyEmail, userID)
+func (q *Queries) DeleteVerifyEmailsOfUser(ctx context.Context, userID int64) error {
+	_, err := q.db.Exec(ctx, deleteVerifyEmailsOfUser, userID)
 	return err
 }
 

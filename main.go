@@ -9,11 +9,11 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/api"
 	"github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/authService"
 	"github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/bookService"
 	database "github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/database/sqlc"
 	"github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/email"
-	gatewayservice "github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/gatewayService"
 	"github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/token"
 	"github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/util"
 	"github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/worker"
@@ -64,6 +64,6 @@ func main() {
 	)
 
 	// json gateway service
-	server := gatewayservice.NewAPIServer(config.SERVER_PORT, authService, bookService, tokenMaker, validator)
+	server := api.NewAPIServer(config.SERVER_PORT, authService, bookService, tokenMaker, validator)
 	server.Run()
 }

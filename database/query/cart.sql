@@ -22,5 +22,8 @@ DELETE FROM "Carts"
 WHERE user_id = $1 and book_id = $2;
 
 
+-- name: DeleteCartOfUser :exec
+DELETE FROM "Carts"
+WHERE user_id = $1;
 
 

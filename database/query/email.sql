@@ -21,6 +21,6 @@ WHERE
 RETURNING *;
 
 
--- name: DeleteVerifyEmail :exec
+-- name: DeleteVerifyEmailsOfUser :exec
 delete from "Verify_Emails"
 where user_id = $1;

@@ -61,13 +61,13 @@ func (q *Queries) CreatePurchase(ctx context.Context, arg CreatePurchaseParams) 
 	return i, err
 }
 
-const deletePurchase = `-- name: DeletePurchase :exec
+const deletePurchasesOfUser = `-- name: DeletePurchasesOfUser :exec
 DELETE FROM "Purchases"
 WHERE user_id = $1
 `
 
-func (q *Queries) DeletePurchase(ctx context.Context, userID int64) error {
-	_, err := q.db.Exec(ctx, deletePurchase, userID)
+func (q *Queries) DeletePurchasesOfUser(ctx context.Context, userID int64) error {
+	_, err := q.db.Exec(ctx, deletePurchasesOfUser, userID)
 	return err
 }
 

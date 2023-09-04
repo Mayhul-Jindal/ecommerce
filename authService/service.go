@@ -232,6 +232,7 @@ func (a *authManager) DeactivateAccount(ctx context.Context, req types.Deactivat
 	}
 
 	_, err = a.db.UpdateUser(ctx, database.UpdateUserParams{
+		ID: authPayload.UserID,
 		IsActive: pgtype.Bool{
 			Bool:  false,
 			Valid: true,
@@ -268,6 +269,7 @@ func (a *authManager) DeleteAccount(ctx context.Context, req types.DeleteAccount
 	}
 
 	_, err = a.db.UpdateUser(ctx, database.UpdateUserParams{
+		ID: authPayload.UserID,
 		IsDeleted: pgtype.Bool{
 			Bool:  true,
 			Valid: true,
@@ -278,6 +280,7 @@ func (a *authManager) DeleteAccount(ctx context.Context, req types.DeleteAccount
 	}
 
 	// TODO move actual deletion to worker
+	a.worker.EnqueueDeleteOperation(authPayload.UserID)
 
 	return types.DeleteAccountResponse{
 		Message: "Account Deleted Successfully",
@@ -294,3 +297,5 @@ func newUserResponse(user database.User) types.UserResponse {
 		CreatedAt:         user.CreatedAt,
 	}
 }
+
+
