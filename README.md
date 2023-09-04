@@ -1,4 +1,4 @@
-![image](https://github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/assets/95216160/6751659b-295b-47fa-ab81-c10deb324006)[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-24ddc0f5d75046c5622901739e7c5dd533143b0c8e959d652212380cedb1ea36.svg)](https://classroom.github.com/a/LECuYE4o)
+[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-24ddc0f5d75046c5622901739e7c5dd533143b0c8e959d652212380cedb1ea36.svg)](https://classroom.github.com/a/LECuYE4o)
 
 # BalkanID Engineering Task
 `Problem Statement` Build a robust online book store to handle user authentication, authorization and access management.
@@ -42,6 +42,8 @@ I wrote the `background workers from scratch` for the task which should not bloc
 
 - Working of deletion operation in background to support `soft delete`
 
+![image](https://github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/assets/95216160/7450b305-69f7-42ca-9934-7e6957001252)
+![del](https://github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/assets/95216160/652f5d84-1740-476e-9598-8df3a3089ac0)
 
 
 ### Search and Filtering with NLP in Postgres 
@@ -108,14 +110,6 @@ Complete razorpay integration for orders. Operational flow is like
 ![image](https://github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/assets/95216160/67805990-dbf6-4c7f-9e8d-efae76de0b23)
 
 
-## Operational Flow
-![Operational flow](https://github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/assets/95216160/b388a573-60d7-4a76-9704-4b65589b507a)
-
-You can test the api routes through this `postman` link
-```
-https://www.postman.com/mission-physicist-26981670/workspace/balkanid-book-store
-```
-
 ## Recomendation
 Made a recommendation system which basically gives related books to the user's last purchase
 ![image](https://github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/assets/95216160/0b5dcf8c-3459-4d83-8f36-f38fb44e6079)
@@ -123,6 +117,14 @@ Made a recommendation system which basically gives related books to the user's l
 You can also get top hot selling books
 ![image](https://github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/assets/95216160/9d2eb76f-ab5f-404e-8c1d-501d6bcee45e)
 
+
+## Operational Flow
+![Operational flow](https://github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/assets/95216160/b388a573-60d7-4a76-9704-4b65589b507a)
+
+You can test the api routes through this `postman` link
+```
+https://www.postman.com/mission-physicist-26981670/workspace/balkanid-book-store
+```
 
 ## System Design
 
@@ -157,19 +159,19 @@ type authManager struct {
 
 
 ## Tasklist
-- [ ] Secure user registration and authentication
-- [ ] Account Deactivation and Deletion: Allow users to deactivate or delete their accounts, if applicable. Implement a mechanism to handle account deletion securely while considering data retention policies.
-- [ ] Protection against vulnerabilities like SQL injection attacks
-- [ ] Have Proper system logging with retention policies upon system failure
-- [ ] Users can easily search and filter books and add them to shopping cart
-- [ ] Users can easily download their bought books and leave a review on the books they bought
-- [ ] Admins have the ability to manage inventory and others
-- [ ] Make the necessary APIs to expose
-- [ ] SQL based database - PostgreSQL
-- [ ] Use a reverse-proxy of your choice
-- [ ] You can choose to write your program in Golang only. It is crucial to ensure that your code is well organized and easy to understand, and that you provide clear instructions on how to run your program.
-- [ ] All plagiarized submissions will be disqualified. Please ensure that you use a VCS Platform like Github and commit and push all your contributions on time. Kindly share the same.
-- [ ] The Github repository must have a file called “README.md” which contains information about how to install and run your project, along with a clear understanding of your project, including relevant diagrams, if any. If you have deployed your application, you may include a link in the README.
-- [ ] You can use Docker and containerize your application code to run, including the database
-- [ ] You can test your code by adding unit test cases and workflow test cases
-- [ ] You can add recommendation system to recommend books to user
+- [X] Secure user registration and authentication
+- [X] Account Deactivation and Deletion: Allow users to deactivate or delete their accounts, if applicable. Implement a mechanism to handle account deletion securely while considering data retention policies.
+- [X] Protection against vulnerabilities like SQL injection attacks
+- [X] Have Proper system logging with retention policies upon system failure
+- [X] Users can easily search and filter books and add them to shopping cart
+- [X] Users can easily download their bought books and leave a review on the books they bought
+- [X] Admins have the ability to manage inventory and others
+- [X] Make the necessary APIs to expose
+- [X] SQL based database - PostgreSQL
+- [X] Use a reverse-proxy of your choice
+- [X] You can choose to write your program in Golang only. It is crucial to ensure that your code is well organized and easy to understand, and that you provide clear instructions on how to run your program.
+- [X] All plagiarized submissions will be disqualified. Please ensure that you use a VCS Platform like Github and commit and push all your contributions on time. Kindly share the same.
+- [X] The Github repository must have a file called “README.md” which contains information about how to install and run your project, along with a clear understanding of your project, including relevant diagrams, if any. If you have deployed your application, you may include a link in the README.
+- [X] You can use Docker and containerize your application code to run, including the database
+- [X] You can test your code by adding unit test cases and workflow test cases
+- [X] You can add recommendation system to recommend books to user
