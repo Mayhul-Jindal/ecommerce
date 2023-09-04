@@ -37,10 +37,12 @@ My code is highly decoupled. This is possible because I have used `ports and ada
 I wrote the `background workers from scratch` for the task which should not block the user to further request my api (eg:- while email is sent to user and when user deleted their account). I have used `semaphore` to make a simple task queue for my worker. You can see the power of background workers here
 
 - Working of email background worker for `email verification`
+
 [email_worker.webm](https://github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal/assets/95216160/feb4b57e-7036-418d-82b5-e091413f6539)
 
 
 - Working of deletion operation in background to support `soft delete`
+
 
 
 ### Search and Filtering with NLP in Postgres 
