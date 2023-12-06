@@ -14,7 +14,7 @@ const (
 	UserAgent            contextKey = "user_agent"
 	AuthorizationPayload contextKey = "auth_payload"
 	Route                contextKey = "route"
-	Method contextKey = "method"
+	Method               contextKey = "method"
 )
 
 type CreateUserRequest struct {
@@ -57,8 +57,8 @@ type RenewAccessTokenResponse struct {
 }
 
 type VerifyEmailResponse struct {
-	UserID int64 `json:"user_id"`
-	IsVerified bool `json:"is_verified"`
+	UserID     int64 `json:"user_id"`
+	IsVerified bool  `json:"is_verified"`
 }
 
 type DeactivateAccountRequest struct {

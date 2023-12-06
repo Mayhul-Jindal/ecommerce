@@ -25,7 +25,7 @@ func makeAPIFunc(fn APIFunc) http.HandlerFunc {
 		ctx = context.WithValue(ctx, types.UserAgent, r.UserAgent())
 		ctx = context.WithValue(ctx, types.Route, r.URL.String())
 		ctx = context.WithValue(ctx, types.Method, r.Method)
-
+		
 		err := fn(ctx, w, r)
 		if err == nil {
 			return
