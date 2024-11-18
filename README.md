@@ -1,22 +1,9 @@
-# BalkanID Engineering Task
-`Problem Statement` Build a robust online book store to handle user authentication, authorization and access management.
-
-## Setup
-
-1. Clone the repository repository
-```
-https://github.com/BalkanID-University/vit-2025-summer-engineering-internship-task-Mayhul-Jindal.git
-```
-
-2. Install docker and docker-compose (for ubunutu)
-```
-sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-```
-
-3. Run docker-compose up
-```
-docker-compose up
-```
+# Book store using ServiceNow
+Built a book store for a client using ServiceNow which has 
+- User authentication
+- Fuzzy searching using natural language processing
+- CRUD operations for managing books inventory
+- Razorpay integration for online payements
 
 ## Salient Features
 
